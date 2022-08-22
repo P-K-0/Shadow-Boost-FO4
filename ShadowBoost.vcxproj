@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{3058ec32-95d9-4620-a166-7ffc917d5130}</ProjectGuid>
+    <RootNamespace>ShadowBoost</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;SB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>exports.def</ModuleDefinitionFile>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(TargetPath)" "D:\Games\Fallout 4\MO2\mods\ShadowBoostFO4\F4SE\Plugins\ShadowBoostFO4.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\f4se\bhkWorld.cpp" />
+    <ClCompile Include="..\f4se\BSCollision.cpp" />
+    <ClCompile Include="..\f4se\BSGeometry.cpp" />
+    <ClCompile Include="..\f4se\BSGraphics.cpp" />
+    <ClCompile Include="..\f4se\BSLight.cpp" />
+    <ClCompile Include="..\f4se\BSModelDB.cpp" />
+    <ClCompile Include="..\f4se\BSParticleShaderEmitter.cpp" />
+    <ClCompile Include="..\f4se\BSSkin.cpp" />
+    <ClCompile Include="..\f4se\CustomMenu.cpp" />
+    <ClCompile Include="..\f4se\GameAPI.cpp" />
+    <ClCompile Include="..\f4se\GameCamera.cpp" />
+    <ClCompile Include="..\f4se\GameCustomization.cpp" />
+    <ClCompile Include="..\f4se\GameData.cpp" />
+    <ClCompile Include="..\f4se\GameEvents.cpp" />
+    <ClCompile Include="..\f4se\GameExtraData.cpp" />
+    <ClCompile Include="..\f4se\GameFormComponents.cpp" />
+    <ClCompile Include="..\f4se\GameForms.cpp" />
+    <ClCompile Include="..\f4se\GameInput.cpp" />
+    <ClCompile Include="..\f4se\GameMemory.cpp" />
+    <ClCompile Include="..\f4se\GameMenus.cpp" />
+    <ClCompile Include="..\f4se\GameMessages.cpp" />
+    <ClCompile Include="..\f4se\GameObjects.cpp" />
+    <ClCompile Include="..\f4se\GameReferences.cpp" />
+    <ClCompile Include="..\f4se\GameRTTI.cpp" />
+    <ClCompile Include="..\f4se\GameSettings.cpp" />
+    <ClCompile Include="..\f4se\GameStreams.cpp" />
+    <ClCompile Include="..\f4se\GameThreads.cpp" />
+    <ClCompile Include="..\f4se\GameTypes.cpp" />
+    <ClCompile Include="..\f4se\GameUtilities.cpp" />
+    <ClCompile Include="..\f4se\GameWorkshop.cpp" />
+    <ClCompile Include="..\f4se\InputMap.cpp" />
+    <ClCompile Include="..\f4se\NiExtraData.cpp" />
+    <ClCompile Include="..\f4se\NiMaterials.cpp" />
+    <ClCompile Include="..\f4se\NiNodes.cpp" />
+    <ClCompile Include="..\f4se\NiObjects.cpp" />
+    <ClCompile Include="..\f4se\NiProperties.cpp" />
+    <ClCompile Include="..\f4se\NiRTTI.cpp" />
+    <ClCompile Include="..\f4se\NiSerialization.cpp" />
+    <ClCompile Include="..\f4se\NiTextures.cpp" />
+    <ClCompile Include="..\f4se\NiTypes.cpp" />
+    <ClCompile Include="..\f4se\ObScript.cpp" />
+    <ClCompile Include="..\f4se\PapyrusActor.cpp" />
+    <ClCompile Include="..\f4se\PapyrusActorBase.cpp" />
+    <ClCompile Include="..\f4se\PapyrusArgs.cpp" />
+    <ClCompile Include="..\f4se\PapyrusArmor.cpp" />
+    <ClCompile Include="..\f4se\PapyrusArmorAddon.cpp" />
+    <ClCompile Include="..\f4se\PapyrusCell.cpp" />
+    <ClCompile Include="..\f4se\PapyrusComponent.cpp" />
+    <ClCompile Include="..\f4se\PapyrusConstructibleObject.cpp" />
+    <ClCompile Include="..\f4se\PapyrusDefaultObject.cpp" />
+    <ClCompile Include="..\f4se\PapyrusDelayFunctors.cpp" />
+    <ClCompile Include="..\f4se\PapyrusEncounterZone.cpp" />
+    <ClCompile Include="..\f4se\PapyrusEquipSlot.cpp" />
+    <ClCompile Include="..\f4se\PapyrusEvents.cpp" />
+    <ClCompile Include="..\f4se\PapyrusForm.cpp" />
+    <ClCompile Include="..\f4se\PapyrusGame.cpp" />
+    <ClCompile Include="..\f4se\PapyrusHeadPart.cpp" />
+    <ClCompile Include="..\f4se\PapyrusInput.cpp" />
+    <ClCompile Include="..\f4se\PapyrusInstanceData.cpp" />
+    <ClCompile Include="..\f4se\PapyrusInterfaces.cpp" />
+    <ClCompile Include="..\f4se\PapyrusLocation.cpp" />
+    <ClCompile Include="..\f4se\PapyrusMaterialSwap.cpp" />
+    <ClCompile Include="..\f4se\PapyrusMath.cpp" />
+    <ClCompile Include="..\f4se\PapyrusMiscObject.cpp" />
+    <ClCompile Include="..\f4se\PapyrusNativeFunctions.cpp" />
+    <ClCompile Include="..\f4se\PapyrusObjectMod.cpp" />
+    <ClCompile Include="..\f4se\PapyrusObjects.cpp" />
+    <ClCompile Include="..\f4se\PapyrusPerk.cpp" />
+    <ClCompile Include="..\f4se\PapyrusScaleformAdapter.cpp" />
+    <ClCompile Include="..\f4se\PapyrusScriptObject.cpp" />
+    <ClCompile Include="..\f4se\PapyrusStruct.cpp" />
+    <ClCompile Include="..\f4se\PapyrusUtilities.cpp" />
+    <ClCompile Include="..\f4se\PapyrusUtility.cpp" />
+    <ClCompile Include="..\f4se\PapyrusValue.cpp" />
+    <ClCompile Include="..\f4se\PapyrusVM.cpp" />
+    <ClCompile Include="..\f4se\PapyrusWaterType.cpp" />
+    <ClCompile Include="..\f4se\PapyrusWeapon.cpp" />
+    <ClCompile Include="..\f4se\ScaleformAPI.cpp" />
+    <ClCompile Include="..\f4se\ScaleformCallbacks.cpp" />
+    <ClCompile Include="..\f4se\ScaleformLoader.cpp" />
+    <ClCompile Include="..\f4se\ScaleformMovie.cpp" />
+    <ClCompile Include="..\f4se\ScaleformState.cpp" />
+    <ClCompile Include="..\f4se\ScaleformTranslator.cpp" />
+    <ClCompile Include="..\f4se\ScaleformTypes.cpp" />
+    <ClCompile Include="..\f4se\ScaleformValue.cpp" />
+    <ClCompile Include="..\f4se\Translation.cpp" />
+    <ClCompile Include="..\f4se_common\BranchTrampoline.cpp" />
+    <ClCompile Include="..\f4se_common\Relocation.cpp" />
+    <ClCompile Include="..\f4se_common\SafeWrite.cpp" />
+    <ClCompile Include="..\f4se_common\Utilities.cpp" />
+    <ClCompile Include="d3d_hook.cpp" />
+    <ClCompile Include="f4se_plugin.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_win32.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="settings.cpp" />
+    <ClCompile Include="shadow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\f4se\bhkWorld.h" />
+    <ClInclude Include="..\f4se\BSCollision.h" />
+    <ClInclude Include="..\f4se\BSGeometry.h" />
+    <ClInclude Include="..\f4se\BSGraphics.h" />
+    <ClInclude Include="..\f4se\BSLight.h" />
+    <ClInclude Include="..\f4se\BSModelDB.h" />
+    <ClInclude Include="..\f4se\BSParticleShaderEmitter.h" />
+    <ClInclude Include="..\f4se\BSSkin.h" />
+    <ClInclude Include="..\f4se\CustomMenu.h" />
+    <ClInclude Include="..\f4se\GameAPI.h" />
+    <ClInclude Include="..\f4se\GameCamera.h" />
+    <ClInclude Include="..\f4se\GameCustomization.h" />
+    <ClInclude Include="..\f4se\GameData.h" />
+    <ClInclude Include="..\f4se\GameEvents.h" />
+    <ClInclude Include="..\f4se\GameExtraData.h" />
+    <ClInclude Include="..\f4se\GameFormComponents.h" />
+    <ClInclude Include="..\f4se\GameForms.h" />
+    <ClInclude Include="..\f4se\GameInput.h" />
+    <ClInclude Include="..\f4se\GameMemory.h" />
+    <ClInclude Include="..\f4se\GameMenus.h" />
+    <ClInclude Include="..\f4se\GameMessages.h" />
+    <ClInclude Include="..\f4se\GameObjects.h" />
+    <ClInclude Include="..\f4se\GameReferences.h" />
+    <ClInclude Include="..\f4se\GameRTTI.h" />
+    <ClInclude Include="..\f4se\GameSettings.h" />
+    <ClInclude Include="..\f4se\GameStreams.h" />
+    <ClInclude Include="..\f4se\GameThreads.h" />
+    <ClInclude Include="..\f4se\GameTypes.h" />
+    <ClInclude Include="..\f4se\GameUtilities.h" />
+    <ClInclude Include="..\f4se\GameWorkshop.h" />
+    <ClInclude Include="..\f4se\InputMap.h" />
+    <ClInclude Include="..\f4se\NiCloningProcess.h" />
+    <ClInclude Include="..\f4se\NiExtraData.h" />
+    <ClInclude Include="..\f4se\NiMaterials.h" />
+    <ClInclude Include="..\f4se\NiNodes.h" />
+    <ClInclude Include="..\f4se\NiObjects.h" />
+    <ClInclude Include="..\f4se\NiProperties.h" />
+    <ClInclude Include="..\f4se\NiRTTI.h" />
+    <ClInclude Include="..\f4se\NiSerialization.h" />
+    <ClInclude Include="..\f4se\NiTextures.h" />
+    <ClInclude Include="..\f4se\NiTypes.h" />
+    <ClInclude Include="..\f4se\ObScript.h" />
+    <ClInclude Include="..\f4se\PapyrusActor.h" />
+    <ClInclude Include="..\f4se\PapyrusActorBase.h" />
+    <ClInclude Include="..\f4se\PapyrusArgs.h" />
+    <ClInclude Include="..\f4se\PapyrusArmor.h" />
+    <ClInclude Include="..\f4se\PapyrusArmorAddon.h" />
+    <ClInclude Include="..\f4se\PapyrusCell.h" />
+    <ClInclude Include="..\f4se\PapyrusComponent.h" />
+    <ClInclude Include="..\f4se\PapyrusConstructibleObject.h" />
+    <ClInclude Include="..\f4se\PapyrusDefaultObject.h" />
+    <ClInclude Include="..\f4se\PapyrusDelayFunctors.h" />
+    <ClInclude Include="..\f4se\PapyrusEncounterZone.h" />
+    <ClInclude Include="..\f4se\PapyrusEquipSlot.h" />
+    <ClInclude Include="..\f4se\PapyrusEvents.h" />
+    <ClInclude Include="..\f4se\PapyrusForm.h" />
+    <ClInclude Include="..\f4se\PapyrusGame.h" />
+    <ClInclude Include="..\f4se\PapyrusHeadPart.h" />
+    <ClInclude Include="..\f4se\PapyrusInput.h" />
+    <ClInclude Include="..\f4se\PapyrusInstanceData.h" />
+    <ClInclude Include="..\f4se\PapyrusInterfaces.h" />
+    <ClInclude Include="..\f4se\PapyrusLocation.h" />
+    <ClInclude Include="..\f4se\PapyrusMaterialSwap.h" />
+    <ClInclude Include="..\f4se\PapyrusMath.h" />
+    <ClInclude Include="..\f4se\PapyrusMiscObject.h" />
+    <ClInclude Include="..\f4se\PapyrusNativeFunctions.h" />
+    <ClInclude Include="..\f4se\PapyrusObjectMod.h" />
+    <ClInclude Include="..\f4se\PapyrusObjects.h" />
+    <ClInclude Include="..\f4se\PapyrusPerk.h" />
+    <ClInclude Include="..\f4se\PapyrusScaleformAdapter.h" />
+    <ClInclude Include="..\f4se\PapyrusScriptObject.h" />
+    <ClInclude Include="..\f4se\PapyrusStruct.h" />
+    <ClInclude Include="..\f4se\PapyrusUtilities.h" />
+    <ClInclude Include="..\f4se\PapyrusUtility.h" />
+    <ClInclude Include="..\f4se\PapyrusValue.h" />
+    <ClInclude Include="..\f4se\PapyrusVM.h" />
+    <ClInclude Include="..\f4se\PapyrusWaterType.h" />
+    <ClInclude Include="..\f4se\PapyrusWeapon.h" />
+    <ClInclude Include="..\f4se\PluginAPI.h" />
+    <ClInclude Include="..\f4se\ScaleformAPI.h" />
+    <ClInclude Include="..\f4se\ScaleformCallbacks.h" />
+    <ClInclude Include="..\f4se\ScaleformLoader.h" />
+    <ClInclude Include="..\f4se\ScaleformMovie.h" />
+    <ClInclude Include="..\f4se\ScaleformState.h" />
+    <ClInclude Include="..\f4se\ScaleformTranslator.h" />
+    <ClInclude Include="..\f4se\ScaleformTypes.h" />
+    <ClInclude Include="..\f4se\ScaleformValue.h" />
+    <ClInclude Include="..\f4se\Translation.h" />
+    <ClInclude Include="..\f4se_common\BranchTrampoline.h" />
+    <ClInclude Include="..\f4se_common\f4se_version.h" />
+    <ClInclude Include="..\f4se_common\Relocation.h" />
+    <ClInclude Include="..\f4se_common\SafeWrite.h" />
+    <ClInclude Include="..\f4se_common\Utilities.h" />
+    <ClInclude Include="d3d_hook.h" />
+    <ClInclude Include="f4se_libraries.h" />
+    <ClInclude Include="f4se_plugin.h" />
+    <ClInclude Include="hook.h" />
+    <ClInclude Include="IMGUI\imgui_impl_dx11.h" />
+    <ClInclude Include="IMGUI\imgui_impl_win32.h" />
+    <ClInclude Include="settings.h" />
+    <ClInclude Include="shadow.h" />
+    <ClInclude Include="std_libraries.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="exports.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\common\common_vc11.vcxproj">
+      <Project>{d4c128a1-73dc-4941-a453-ce55af239ba8}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
