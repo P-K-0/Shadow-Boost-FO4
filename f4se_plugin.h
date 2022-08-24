@@ -14,7 +14,7 @@ namespace f4se {
 
 	public:
 
-		static Plugin& GetInstance()
+		static Plugin& GetInstance() noexcept
 		{
 			static Plugin instance;
 			return instance;

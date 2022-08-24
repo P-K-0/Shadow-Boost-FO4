@@ -8,8 +8,8 @@ namespace Hook {
 	template<typename Func>
 	inline void HookImportFunc(const char* dll, const char* nameFunc, Func& oldFn, std::uintptr_t hookFn)
 	{
-		uintptr_t thunkAddress = (uintptr_t)GetIATAddr((UInt8*)GetModuleHandle(NULL), dll, nameFunc);
-		oldFn = (Func)*(uintptr_t*)thunkAddress;
+		std::uintptr_t thunkAddress = (std::uintptr_t)GetIATAddr((UInt8*)GetModuleHandle(NULL), dll, nameFunc);
+		oldFn = (Func)*(std::uintptr_t*)thunkAddress;
 		SafeWrite64(thunkAddress, hookFn);
 	}
 

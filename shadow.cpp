@@ -3,39 +3,91 @@
 
 namespace Shadow {
 
-	void Boost::Init()
+	void Boost::Init() noexcept
 	{
 		auto& settings = Settings::Ini::GetInstance();
 
-		Target = Second / settings.GetFpsTarget();
-		Delay = settings.GetFpsDelay();
-		Min = settings.GetMinDistance();
-		Max = settings.GetMaxDistance();
+		target = Second / settings.GetFpsTarget();
 	}
 
-	void Boost::operator()()
+	void Boost::RegisterEvents() noexcept
 	{
-		if (!fDirShadowDistance)
+		static bool isRegistered{ false };
+
+		if (isRegistered)
 			return;
+
+		isRegistered = GetEventDispatcher<TESLoadGameEvent>()->AddEventSink(&instance);
+
+		SetGodRays();
+	}
+
+	void Boost::operator()() noexcept
+	{
+		auto& settings = Settings::Ini::GetInstance();
 
 		countFps++;
 
-		if (countFps < Delay)
+		if (countFps < settings.GetFpsDelay())
 			return;
 
-		countFps = 0;
+		countFps = 0.0f;
 
 		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - oldTime);
 
-		avg = static_cast<float>(delta.count()) / Second / Delay;
+		avg = static_cast<float>(delta.count()) / Second / settings.GetFpsDelay(); 
+		//fps = Second / avg;
 
 		oldTime = std::chrono::high_resolution_clock::now();
 
-		dyn = (avg - Target) * 100.0;
+		dyn = (avg - target); 
 
-		*fDirShadowDistance = std::clamp(*fDirShadowDistance - dyn, Min, Max);
+		if (fDirShadowDistance)
+			*fDirShadowDistance = std::clamp(*fDirShadowDistance - dyn * settings.GetShadowFactor(), settings.GetMinDistance(), settings.GetMaxDistance());
+
+		float d = dyn * settings.GetLodFactor();
+
+		if (fLODFadeOutMultObjects)
+			*fLODFadeOutMultObjects = std::clamp(*fLODFadeOutMultObjects - d, settings.GetMinObjects(), settings.GetMaxObjects());
+
+		if (fLODFadeOutMultItems)
+			*fLODFadeOutMultItems = std::clamp(*fLODFadeOutMultItems - d, settings.GetMinItems(), settings.GetMaxItems());
+		
+		if (fLODFadeOutMultActors)
+			*fLODFadeOutMultActors = std::clamp(*fLODFadeOutMultActors - d, settings.GetMinActors(), settings.GetMaxActors());
+
+		if (fGrassStartFadeDistance)
+			*fGrassStartFadeDistance = std::clamp(*fGrassStartFadeDistance - dyn * settings.GetGrassFactor(), settings.GetMinGrass(), settings.GetMaxGrass());
+
+		if (fBlockLevel2Distance && fBlockLevel1Distance && fBlockLevel0Distance) {
+
+			d = dyn * settings.GetBlockFactor();
+
+			*fBlockLevel2Distance = std::clamp(*fBlockLevel2Distance - d, settings.GetMinBlockLevel2(), settings.GetMaxBlockLevel2());
+			*fBlockLevel1Distance = std::clamp(*fBlockLevel1Distance - d, settings.GetMinBlockLevel1(), settings.GetMaxBlockLevel1());
+			*fBlockLevel0Distance = std::clamp(*fBlockLevel0Distance - d, settings.GetMinBlockLevel0(), settings.GetMaxBlockLevel0());
+		}
 	}
+
+	void Boost::SetGodRays()
+	{
+		auto& settings = Settings::Ini::GetInstance();
+
+		if (GrQuality && GrGrid && GrScale && GrCascade) {
+
+			*GrQuality = settings.GetGrQuality();
+			*GrGrid = settings.GetGrGrid();
+			*GrScale = settings.GetGrScale();
+			*GrCascade = settings.GetGrCascade();
+		}
+	}
+
+	EventResult	Boost::ReceiveEvent(TESLoadGameEvent* evn, void* dispatcher)
+	{
+		SetGodRays();
+
+		return kEvent_Continue; 
+	};
 
 	Boost Boost::instance;
 }
-

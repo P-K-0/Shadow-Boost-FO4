@@ -59,6 +59,8 @@ namespace f4se {
 
 		Hook::D3D::Register();
 
+		_DMESSAGE("Shadow Boost FO4 by PK0 started...");
+
 		return true;
 	}
 
@@ -79,6 +81,8 @@ namespace f4se {
 			break;
 
 		case F4SEMessagingInterface::kMessage_GameLoaded:
+
+			Shadow::Boost::GetInstance().RegisterEvents();
 
 			break;
 		}
