@@ -1,12 +1,11 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cmath>
-#include <functional>
-#include <initializer_list>
 #include <chrono>
-#include <thread>
-#include <mutex>
+#include <regex>
+#include <unordered_map>
 
 #include <ShlObj.h>

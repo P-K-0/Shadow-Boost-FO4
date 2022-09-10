@@ -1,94 +1,122 @@
 
 #include "f4se_plugin.h"
 
+#include "translation.h"
+#include "shadow.h"
+#include "json_preset.h"
+
 namespace f4se {
 
-	bool Plugin::Query(const F4SEInterface* f4se, PluginInfo* info)
+	bool Plugin::Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
 	{
-		std::string dirLog{ "\\My Games\\Fallout4\\F4SE\\" };
-
-		dirLog += NamePlugin;
-		dirLog += ".log";
-
-		iLog.OpenRelative(CSIDL_MYDOCUMENTS, dirLog.c_str());
-
-		info->infoVersion = PluginInfo::kInfoVersion;
-		info->name = NamePlugin;
-		info->version = 1;
-
-		hPlugin = f4se->GetPluginHandle();
-
-		if (f4se->runtimeVersion < RUNTIME_VERSION_1_10_162) {
-
-			_ERROR("runtime error!");
-
+#ifndef NDEBUG
+		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
+#else
+		auto path = logger::log_directory();
+		if (!path) {
 			return false;
 		}
 
-		if (f4se->isEditor) {
+		*path /= fmt::format(FMT_STRING("{}.log"), Version::Project);
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
+#endif
 
-			_ERROR("Plugin is not compatible with editor!");
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
+#ifndef NDEBUG
+		log->set_level(spdlog::level::trace);
+#else
+		log->set_level(spdlog::level::info);
+		log->flush_on(spdlog::level::info);
+#endif
+
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+
+		logger::info(FMT_STRING("{} v{}"), Version::Project, Version::Name);
+
+		a_info->infoVersion = F4SE::PluginInfo::kVersion;
+		a_info->name = Version::Project.data();
+		a_info->version = Version::Major;
+
+		if (a_f4se->IsEditor()) {
+			logger::critical("loaded in editor"sv);
 			return false;
 		}
 
-		if (!(f4se_msg_interface = static_cast<F4SEMessagingInterface*>(f4se->QueryInterface(kInterface_Messaging)))) {
-
-			_ERROR("Messaging Interface error!");
-
+		const auto ver = a_f4se->RuntimeVersion();
+		if (ver < F4SE::RUNTIME_1_10_130) {
+			logger::critical(FMT_STRING("unsupported runtime v{}"sv), ver.string());
 			return false;
 		}
 
-		if (!(f4se_task_interface = static_cast<F4SETaskInterface*>(f4se->QueryInterface(kInterface_Task)))) {
+		if (a_f4se->IsEditor()) {
 
-			_ERROR("Task interface error!");
-
-			return false;
-		}
-
-		if (!(f4se_papyrus_interface = static_cast<F4SEPapyrusInterface*>(f4se->QueryInterface(kInterface_Papyrus)))) {
-
-			_ERROR("Papyrus interface error!");
+			logger::error("Plugin is not compatible with editor!");
 
 			return false;
 		}
 
 		Settings::Ini::GetInstance().ReadSettings();
 
-		Shadow::Boost::GetInstance().Init();
+		Translation::Language::GetInstance().Load();
 
 		Hook::D3D::Register();
 
-		_DMESSAGE("Shadow Boost FO4 by PK0 started...");
+		logger::info("Shadow Boost FO4 by PK0 started...");
 
 		return true;
 	}
 
-	bool Plugin::Load(const F4SEInterface* f4se)
+	bool Plugin::Load(const F4SE::LoadInterface* a_f4se)
 	{
-		if (f4se_msg_interface)
-			return f4se_msg_interface->RegisterListener(hPlugin, "F4SE", MsgCallback);
+		F4SE::Init(a_f4se);
 
-		return false;
+		f4se_msg_interface = (F4SE::MessagingInterface*)(F4SE::GetMessagingInterface());
+		if (!f4se_msg_interface) {
+
+			logger::error("Messaging Interface error!");
+
+			return false;
+		}
+
+		f4se_task_interface = (F4SE::TaskInterface*)(F4SE::GetTaskInterface());
+		if (!f4se_task_interface) {
+
+			logger::error("Task interface error!");
+
+			return false;
+		}
+
+		f4se_papyrus_interface = (F4SE::PapyrusInterface*)(F4SE::GetPapyrusInterface());
+		if (!f4se_papyrus_interface) {
+
+			logger::error("Papyrus interface error!");
+
+			return false;
+		}
+
+		if (f4se_msg_interface)
+			return f4se_msg_interface->RegisterListener(MsgCallback);
+
+		return true;
 	}
 
-	void Plugin::MsgCallback(F4SEMessagingInterface::Message* msg)
+	void Plugin::MsgCallback(F4SE::MessagingInterface::Message* msg)
 	{
 		switch (msg->type) {
 
-		case F4SEMessagingInterface::kMessage_NewGame:
+		case F4SE::MessagingInterface::kGameLoaded:
 
-			break;
+			Shadow::Boost::GetInstance().GameLoaded();
 
-		case F4SEMessagingInterface::kMessage_GameLoaded:
-
-			Shadow::Boost::GetInstance().RegisterEvents();
+			json_preset::Preset::GetInstance().Load();
 
 			break;
 		}
 	}
 
-	void Plugin::AddTask(ITaskDelegate* task)
+	void Plugin::AddTask(F4SE::ITaskDelegate* task)
 	{
 		if (f4se_task_interface)
 			f4se_task_interface->AddTask(task);

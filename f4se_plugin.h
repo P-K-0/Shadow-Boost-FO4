@@ -8,8 +8,6 @@
 
 namespace f4se {
 
-	constexpr char* NamePlugin = "ShadowBoostFO4";
-
 	class Plugin {
 
 	public:
@@ -20,12 +18,12 @@ namespace f4se {
 			return instance;
 		}
 
-		[[nodiscard]] bool Query(const F4SEInterface* f4se, PluginInfo* info);
-		[[nodiscard]] bool Load(const F4SEInterface* f4se);
+		[[nodiscard]] bool Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info);
+		[[nodiscard]] bool Load(const F4SE::LoadInterface* a_f4se);
 
-		void AddTask(ITaskDelegate* task);
+		void AddTask(F4SE::ITaskDelegate* task);
 
-		//F4SEPapyrusInterface& GetPapyrusInterface() { return *f4se_papyrus_interface; }
+		const F4SE::PapyrusInterface& GetPapyrusInterface() { return *f4se_papyrus_interface; }
 
 	private:
 
@@ -38,14 +36,10 @@ namespace f4se {
 		Plugin& operator=(const Plugin&) = delete;
 		Plugin& operator=(Plugin&&) = delete;
 
-		static void MsgCallback(F4SEMessagingInterface::Message* msg);
+		static void MsgCallback(F4SE::MessagingInterface::Message* msg);
 
-		IDebugLog iLog;
-
-		PluginHandle hPlugin;
-
-		F4SEMessagingInterface* f4se_msg_interface{ nullptr };
-		F4SETaskInterface* f4se_task_interface{ nullptr };
-		F4SEPapyrusInterface* f4se_papyrus_interface{ nullptr };
+		F4SE::MessagingInterface* f4se_msg_interface{ nullptr };
+		F4SE::TaskInterface* f4se_task_interface{ nullptr };
+		F4SE::PapyrusInterface* f4se_papyrus_interface{ nullptr };
 	};
 }

@@ -9,51 +9,86 @@ namespace Shadow {
 
 	constexpr float Second = 1000.0;
 
-	static RelocPtr<float> fDirShadowDistance(0x067333DC);
+	static REL::Relocation<float*> fDirShadowDistance(REL::ID(777729));
 
-	static RelocPtr<float> fLODFadeOutMultObjects(0x038C4E1C);
-	static RelocPtr<float> fLODFadeOutMultItems(0x038C4E20);
-	static RelocPtr<float> fLODFadeOutMultActors(0x038C4E24);
+	static REL::Relocation<float*> fLODFadeOutMultObjects(REL::ID(123089));
+	static REL::Relocation<float*> fLODFadeOutMultItems(REL::ID(1023729));
+	static REL::Relocation<float*> fLODFadeOutMultActors(REL::ID(342335));
 
-	static RelocPtr<float> fGrassStartFadeDistance(0x06722D88);
+	static REL::Relocation<float*> fGrassStartFadeDistance(REL::ID(183225));
 
-	static RelocPtr<float> fBlockLevel2Distance(0x037498E8);
-	static RelocPtr<float> fBlockLevel1Distance(0x037498D0);
-	static RelocPtr<float> fBlockLevel0Distance(0x037498B8);
+	static REL::Relocation<float*> fBlockLevel2Distance(REL::ID(379949));
+	static REL::Relocation<float*> fBlockLevel1Distance(REL::ID(1304050));
+	static REL::Relocation<float*> fBlockLevel0Distance(REL::ID(646264));
 
-	static RelocPtr<std::int32_t> GrQuality(0x038C9F08);
-	static RelocPtr<std::int32_t> GrGrid(0x0673296C);
-	static RelocPtr<float> GrScale(0x06732964);
-	static RelocPtr<std::int32_t> GrCascade(0x038C9EDC);
+	static REL::Relocation<std::int32_t*> GrQuality(REL::ID(957649));
+	static REL::Relocation<std::int32_t*> GrGrid(REL::ID(289565));
+	static REL::Relocation<float*> GrScale(REL::ID(70509));
+	static REL::Relocation<std::int32_t*> GrCascade(REL::ID(542491));
+
+	template<typename T>
+	inline constexpr RE::BSTEventSource<T>* GetDispatcher(const REL::ID& id)
+	{
+		using fn = RE::BSTEventSource<T>* (*)();
+		REL::Relocation<fn> func(id);
+		return func();
+	}
+
+	struct TESCellAttachDetachEvent {
+
+		RE::TESObjectREFR* refr;
+		std::uint32_t unknown;
+	};
+
+	struct TESLoadGameEvent {
+
+	};
+
+	class TaskLocation : 
+		public F4SE::ITaskDelegate {
+
+	public:
+
+		TaskLocation() {}
+
+		virtual void Run();
+	};
 
 	class Boost : 
-		public BSTEventSink<TESLoadGameEvent> {
+		public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
+		public RE::BSTEventSink<TESCellAttachDetachEvent>,
+		public RE::BSTEventSink<TESLoadGameEvent>,
+		public RE::BSTEventSink<RE::CellAttachDetachEvent> {
 
 	public:
 
 		static Boost& GetInstance() noexcept { return instance; }
 
-		void Init() noexcept;
-		void RegisterEvents() noexcept;
+		void GameLoaded() noexcept;
 
-		virtual	EventResult	ReceiveEvent(TESLoadGameEvent* evn, void* dispatcher);
+		void ReloadStuff() noexcept;
+
+		void EnableShadow() noexcept;
+		void EnableLod() noexcept;
+		void EnableBlock() noexcept;
+		void EnableGrass() noexcept;
+		void EnableGodRays() noexcept;
+
+		void SetGodRays() noexcept;
+		void SetupFps() noexcept;
+		void SetPlayerLocation() noexcept;
+
+		void Run() noexcept { SetupFps(); run = true; }
+		void Pause() noexcept { if (Settings::Ini::GetInstance().IsPauseInMenu()) { run = false; } }
+
+		virtual RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_source);
+		virtual RE::BSEventNotifyControl ProcessEvent(const TESLoadGameEvent& a_event, RE::BSTEventSource<TESLoadGameEvent>* a_source);
+		virtual RE::BSEventNotifyControl ProcessEvent(const TESCellAttachDetachEvent& a_event, RE::BSTEventSource<TESCellAttachDetachEvent>* a_source);
+		virtual RE::BSEventNotifyControl ProcessEvent(const RE::CellAttachDetachEvent& a_event, RE::BSTEventSource<RE::CellAttachDetachEvent>* a_source);
 
 		void operator()() noexcept;
 
-		operator bool() noexcept {
-			return (fDirShadowDistance &&
-				fLODFadeOutMultObjects &&
-				fLODFadeOutMultItems &&
-				fLODFadeOutMultActors &&
-				fGrassStartFadeDistance &&
-				fBlockLevel2Distance &&
-				fBlockLevel1Distance &&
-				fBlockLevel0Distance &&
-				GrQuality &&
-				GrGrid &&
-				GrScale &&
-				GrCascade);
-		}
+		operator bool() noexcept;
 
 		[[nodiscard]] const float& GetFps() const noexcept { return fps; }
 		[[nodiscard]] const float& GetMs() const noexcept { return avg; }
@@ -76,8 +111,6 @@ namespace Shadow {
 		[[nodiscard]] const float& GetGrScale() const noexcept { return *GrScale; }
 		[[nodiscard]] const std::int32_t& GetGrCascade() const noexcept { return *GrCascade; }
 		
-		void SetGodRays();
-
 	private:
 
 		Boost() {}
@@ -89,13 +122,33 @@ namespace Shadow {
 		Boost& operator=(const Boost&) = delete;
 		Boost& operator=(Boost&&) = delete;
 
-		std::chrono::steady_clock::time_point oldTime{ std::chrono::high_resolution_clock::now() };
+		std::chrono::steady_clock::time_point oldTime{};
+
+		void SaveOriginalValues() noexcept;
+
+		bool run{};
 
 		float countFps{};
 		float target{};
+		float tolerance{};
 		float fps{};
 		float avg{};
 		float dyn{};
+
+		float o_fDirShadowDistance{};
+		float o_fLODFadeOutMultObjects{};
+		float o_fLODFadeOutMultItems{};
+		float o_fLODFadeOutMultActors{};
+		float o_fGrassStartFadeDistance{};
+		float o_fBlockLevel2Distance{};
+		float o_fBlockLevel1Distance{};
+		float o_fBlockLevel0Distance{};
+		std::int32_t o_GrQuality{};
+		std::int32_t o_GrGrid{};
+		float o_GrScale{};
+		std::int32_t o_GrCascade{};
+
+		std::unordered_map<std::string, bool> mapMenus;
 
 		static Boost instance;
 	};

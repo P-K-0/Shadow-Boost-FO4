@@ -1,14 +1,8 @@
 #pragma once
 
+#include "pch.h"
+
 #include <d3d11.h>
-
-#include "imgui.h"
-#include "IMGUI/imgui_impl_dx11.h"
-#include "IMGUI/imgui_impl_win32.h"
-
-#include "hook.h"
-#include "shadow.h"
-#include "settings.h"
 
 namespace Hook {
 
@@ -18,6 +12,7 @@ namespace Hook {
 		using ClearState = HRESULT (__stdcall*)(ID3D11DeviceContext*);
 		using Present = HRESULT(__stdcall*)(IDXGISwapChain*, UINT, UINT);
 		using ClipCur = decltype(&ClipCursor);
+		using RegisterClsEx = decltype(&RegisterClassEx);
 
 	public:
 
@@ -38,8 +33,9 @@ namespace Hook {
 		static HRESULT __stdcall PresentHook(IDXGISwapChain*, UINT, UINT);
 		static HRESULT __stdcall D3D11CreateDeviceAndSwapChainHook(IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT, const D3D_FEATURE_LEVEL*, UINT, UINT, const DXGI_SWAP_CHAIN_DESC*, IDXGISwapChain**, ID3D11Device**, D3D_FEATURE_LEVEL*, ID3D11DeviceContext**);
 		static LRESULT __stdcall WndProcHandler(HWND, UINT, WPARAM, LPARAM);
-
+		static ATOM __stdcall RegisterClassExHook(const WNDCLASSEXA*);
 		static BOOL __stdcall ClipCursorHook(RECT*);
+
 		static void EnableCursor(bool enable);
 
 		struct OldFuncs {
@@ -48,12 +44,12 @@ namespace Hook {
 			ClearState d3dClear;
 			Present d3dPresent;
 			ClipCur clipCursor;
+			RegisterClsEx regCls;
 			WNDPROC wndProc;
 		};
 
 		static OldFuncs oldFuncs;
 
 		static RECT oldRect;
-		static bool isShow;
 	};
 }

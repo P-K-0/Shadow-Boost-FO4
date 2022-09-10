@@ -1,19 +1,18 @@
 #pragma once
 
-#include "SimpleIni.h"
-
-#include "f4se_plugin.h"
+#include "pch.h"
 
 namespace Settings {
 
 	constexpr float DefaultFpsTarget = 58.0;
 	constexpr float DefaultFpsDelay = 5.0;
+	constexpr float DefaultMsTolerance = 0.0;
 
 	constexpr float DefaultMinDistance = 2000.0;
 	constexpr float DefaultMaxDistance = 10000.0;
 
 	constexpr float DefaultMinDistObjects = 4.5;
-	constexpr float DefaultMaxDistObjects = 9.0;
+	constexpr float DefaultMaxDistObjects = 6.0;
 
 	constexpr float DefaultMinDistItems = 2.5;
 	constexpr float DefaultMaxDistItems = 5.0;
@@ -21,7 +20,7 @@ namespace Settings {
 	constexpr float DefaultMinDistActors = 6.0;
 	constexpr float DefaultMaxDistActors = 12.0;
 
-	constexpr float DefaultMinDistGrass = 6000.0;
+	constexpr float DefaultMinDistGrass = 4000.0;
 	constexpr float DefaultMaxDistGrass = 10000.0;
 
 	constexpr float DefaultMinDistBlockLevel2 = 30000.0;
@@ -34,7 +33,7 @@ namespace Settings {
 	constexpr float DefaultMaxDistBlockLevel0 = 12000.0;
 
 	constexpr float DefaultShadowFactor = 100.0;
-	constexpr float DefaultLodFactor = 0.1;
+	constexpr float DefaultLodFactor = 0.1f;
 	constexpr float DefaultGrassFactor = 100.0;
 	constexpr float DefaultBlockLevelFactor = 100.0;
 
@@ -43,7 +42,68 @@ namespace Settings {
 	constexpr float DefaultGrScale = 0.4f;
 	constexpr std::int32_t DefaultGrCascade = 1;
 
+	constexpr std::int32_t DefaultKey = 123;
+
 	constexpr bool DefaultLog = false;
+	constexpr bool DefaultTransparent = false;
+	constexpr bool DefaultPauseInMenu = true;
+	constexpr bool DefaultShadow = true;
+	constexpr bool DefaultLod = true;
+	constexpr bool DefaultGrass = true;
+	constexpr bool DefaultBlock = true;
+	constexpr bool DefaultGodRays = true;
+
+	static const char* DefaultBlackListMenus = "CursorMenu;HUDMenu;FaderMenu;PromptMenu";
+
+	struct MainValues {
+
+		float fFpsTarget;
+		float fFpsDelay;
+		float fMsTolerance;
+
+		bool bShadowEnable;
+		bool bLodEnable;
+		bool bGrassEnable;
+		bool bBlockEnable;
+		bool bGodRays;
+
+		std::int32_t grQuality;
+		std::int32_t grGrid;
+		float grScale;
+		std::int32_t grCascade;
+	};
+
+	struct Values {
+
+		float fMinDistance;
+		float fMaxDistance;
+
+		float fMinDistObjects;
+		float fMaxDistObjects;
+
+		float fMinDistItems;
+		float fMaxDistItems;
+
+		float fMinDistActors;
+		float fMaxDistActors;
+
+		float fMinDistGrass;
+		float fMaxDistGrass;
+
+		float fMinDistBlockLevel2;
+		float fMaxDistBlockLevel2;
+
+		float fMinDistBlockLevel1;
+		float fMaxDistBlockLevel1;
+
+		float fMinDistBlockLevel0;
+		float fMaxDistBlockLevel0;
+
+		float fShadowFactor;
+		float fLodFactor;
+		float fGrassFactor;
+		float fBlockFactor;
+	};
 
 	class Ini {
 
@@ -52,51 +112,72 @@ namespace Settings {
 		static Ini& GetInstance() noexcept { return instance; }
 
 		void ReadSettings() noexcept;
-		void WriteSettings() noexcept;
+		[[nodiscard]] bool WriteSettings() noexcept;
+		void SetDefault() noexcept;
+		void SetNameKey(bool wait = false) noexcept;
 
-		[[nodiscard]] float& GetFpsTarget() noexcept { return fFpsTarget; }
-		[[nodiscard]] float& GetFpsDelay() noexcept { return fFpsDelay; }
+		[[nodiscard]] float& GetFpsTarget() noexcept { return m_values.fFpsTarget; }
+		[[nodiscard]] float& GetFpsDelay() noexcept { return m_values.fFpsDelay; }
+		[[nodiscard]] float& GetMsTolerance() noexcept { return m_values.fMsTolerance; }
 
-		[[nodiscard]] float& GetMinDistance() noexcept { return fMinDistance; }
-		[[nodiscard]] float& GetMaxDistance() noexcept { return fMaxDistance; }
+		[[nodiscard]] float& GetMinDistance() noexcept { return values.fMinDistance; }
+		[[nodiscard]] float& GetMaxDistance() noexcept { return values.fMaxDistance; }
 
-		[[nodiscard]] float& GetMinObjects() noexcept { return fMinDistObjects; }
-		[[nodiscard]] float& GetMaxObjects() noexcept { return fMaxDistObjects; }
+		[[nodiscard]] float& GetMinObjects() noexcept { return values.fMinDistObjects; }
+		[[nodiscard]] float& GetMaxObjects() noexcept { return values.fMaxDistObjects; }
 
-		[[nodiscard]] float& GetMinItems() noexcept { return fMinDistItems; }
-		[[nodiscard]] float& GetMaxItems() noexcept { return fMaxDistItems; }
+		[[nodiscard]] float& GetMinItems() noexcept { return values.fMinDistItems; }
+		[[nodiscard]] float& GetMaxItems() noexcept { return values.fMaxDistItems; }
 
-		[[nodiscard]] float& GetMinActors() noexcept { return fMinDistActors; }
-		[[nodiscard]] float& GetMaxActors() noexcept { return fMaxDistActors; }
+		[[nodiscard]] float& GetMinActors() noexcept { return values.fMinDistActors; }
+		[[nodiscard]] float& GetMaxActors() noexcept { return values.fMaxDistActors; }
 
-		[[nodiscard]] float& GetMinGrass() noexcept { return fMinDistGrass; }
-		[[nodiscard]] float& GetMaxGrass() noexcept { return fMaxDistGrass; }
+		[[nodiscard]] float& GetMinGrass() noexcept { return values.fMinDistGrass; }
+		[[nodiscard]] float& GetMaxGrass() noexcept { return values.fMaxDistGrass; }
 
-		[[nodiscard]] float& GetMinBlockLevel2() noexcept { return fMinDistBlockLevel2; }
-		[[nodiscard]] float& GetMaxBlockLevel2() noexcept { return fMaxDistBlockLevel2; }
+		[[nodiscard]] float& GetMinBlockLevel2() noexcept { return values.fMinDistBlockLevel2; }
+		[[nodiscard]] float& GetMaxBlockLevel2() noexcept { return values.fMaxDistBlockLevel2; }
 
-		[[nodiscard]] float& GetMinBlockLevel1() noexcept { return fMinDistBlockLevel1; }
-		[[nodiscard]] float& GetMaxBlockLevel1() noexcept { return fMaxDistBlockLevel1; }
+		[[nodiscard]] float& GetMinBlockLevel1() noexcept { return values.fMinDistBlockLevel1; }
+		[[nodiscard]] float& GetMaxBlockLevel1() noexcept { return values.fMaxDistBlockLevel1; }
 
-		[[nodiscard]] float& GetMinBlockLevel0() noexcept { return fMinDistBlockLevel0; }
-		[[nodiscard]] float& GetMaxBlockLevel0() noexcept { return fMaxDistBlockLevel0; }
+		[[nodiscard]] float& GetMinBlockLevel0() noexcept { return values.fMinDistBlockLevel0; }
+		[[nodiscard]] float& GetMaxBlockLevel0() noexcept { return values.fMaxDistBlockLevel0; }
 
-		[[nodiscard]] float& GetShadowFactor() noexcept { return fShadowFactor; }
+		[[nodiscard]] float& GetShadowFactor() noexcept { return values.fShadowFactor; }
 
-		[[nodiscard]] float& GetLodFactor() noexcept { return fLodFactor; }
+		[[nodiscard]] float& GetLodFactor() noexcept { return values.fLodFactor; }
 
-		[[nodiscard]] float& GetGrassFactor() noexcept { return fGrassFactor; }
+		[[nodiscard]] float& GetGrassFactor() noexcept { return values.fGrassFactor; }
 
-		[[nodiscard]] float& GetBlockFactor() noexcept { return fBlockFactor; }
+		[[nodiscard]] float& GetBlockFactor() noexcept { return values.fBlockFactor; }
 
 		[[nodiscard]] bool& IsEnabledLog() noexcept { return bLog; }
+		[[nodiscard]] bool& IsTransparent() noexcept { return bTransparent; }
+		[[nodiscard]] bool& IsPauseInMenu() noexcept { return bPauseInMenu; }
 
-		[[nodiscard]] const int& GetKey() const noexcept { return iKey; }
+		[[nodiscard]] std::int32_t& GetKey() noexcept { return iKey; }
 
-		[[nodiscard]] std::int32_t& GetGrQuality() noexcept { return grQuality; }
-		[[nodiscard]] std::int32_t& GetGrGrid() noexcept { return grGrid; }
-		[[nodiscard]] float& GetGrScale() noexcept { return grScale; }
-		[[nodiscard]] std::int32_t& GetGrCascade() noexcept { return grCascade; }
+		[[nodiscard]] const std::string& GetNameKey() const noexcept { return nameKey; }
+
+		[[nodiscard]] std::int32_t& GetGrQuality() noexcept { return m_values.grQuality; }
+		[[nodiscard]] std::int32_t& GetGrGrid() noexcept { return m_values.grGrid; }
+		[[nodiscard]] float& GetGrScale() noexcept { return m_values.grScale; }
+		[[nodiscard]] std::int32_t& GetGrCascade() noexcept { return m_values.grCascade; }
+
+		[[nodiscard]] bool& GetShadowEnabled() noexcept { return m_values.bShadowEnable; }
+		[[nodiscard]] bool& GetLodEnabled() noexcept { return m_values.bLodEnable; }
+		[[nodiscard]] bool& GetGrassEnabled() noexcept { return m_values.bGrassEnable; }
+		[[nodiscard]] bool& GetBlockEnabled() noexcept { return m_values.bBlockEnable; }
+		[[nodiscard]] bool& GetGodRaysEnabled() noexcept { return m_values.bGodRays; }
+
+		void SetMainValues(const MainValues& val) noexcept { m_values = val; }
+		void SetValues(const Values& val) noexcept { values = val; }
+
+		[[nodiscard]] const MainValues& GetMainValues() const noexcept { return m_values; }
+		[[nodiscard]] const Values& GetValues() const noexcept { return values; }
+
+		[[nodiscard]] const std::vector<std::string>& GetBlackListMenus() noexcept { return blacklistMenus; }
 
 	private:
 
@@ -109,48 +190,20 @@ namespace Settings {
 		Ini& operator=(const Ini&) = delete;
 		Ini& operator=(Ini&&) = delete;
 
-		float fFpsTarget{ DefaultFpsTarget };
-		float fFpsDelay{ DefaultFpsDelay };
+		void ParseString(const std::string& str, std::vector<std::string>& vec) noexcept;
 
-		float fMinDistance{ DefaultMinDistance };
-		float fMaxDistance{ DefaultMaxDistance };
-
-		float fMinDistObjects{ DefaultMinDistObjects };
-		float fMaxDistObjects{ DefaultMaxDistObjects };
-
-		float fMinDistItems{ DefaultMinDistItems };
-		float fMaxDistItems{ DefaultMaxDistItems };
-
-		float fMinDistActors{ DefaultMinDistActors };
-		float fMaxDistActors{ DefaultMaxDistActors };
-
-		float fMinDistGrass{ DefaultMinDistGrass };
-		float fMaxDistGrass{ DefaultMaxDistGrass };
-
-		float fMinDistBlockLevel2{ DefaultMinDistBlockLevel2 };
-		float fMaxDistBlockLevel2{ DefaultMaxDistBlockLevel2 };
-
-		float fMinDistBlockLevel1{ DefaultMinDistBlockLevel1 };
-		float fMaxDistBlockLevel1{ DefaultMaxDistBlockLevel1 };
-
-		float fMinDistBlockLevel0{ DefaultMinDistBlockLevel0 };
-		float fMaxDistBlockLevel0{ DefaultMaxDistBlockLevel0 };
-
-		float fShadowFactor{ DefaultShadowFactor };
-		float fLodFactor{ DefaultLodFactor };
-		float fGrassFactor{ DefaultGrassFactor };
-		float fBlockFactor{ DefaultBlockLevelFactor };
-
-		std::int32_t grQuality{ DefaultGrQuality };
-		std::int32_t grGrid{ DefaultGrGrid };
-		float grScale{ DefaultGrScale };
-		std::int32_t grCascade{ DefaultGrCascade };
+		MainValues m_values{};
+		Values values{};
 
 		bool bLog{ DefaultLog };
+		bool bTransparent{ DefaultTransparent };
+		bool bPauseInMenu{ DefaultPauseInMenu };
+		std::vector<std::string> blacklistMenus;
 
-		int iKey{ VK_F12 };
+		int iKey{ DefaultKey };
 
 		std::string dirLog{};
+		std::string nameKey{};
 
 		static Ini instance;
 	};

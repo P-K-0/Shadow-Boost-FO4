@@ -1,25 +1,28 @@
 #pragma once
 
+#include "pch.h"
 #include "std_libraries.h"
 #include "f4se_libraries.h"
 
 namespace Hook {
 
-	template<typename Func>
-	inline void HookImportFunc(const char* dll, const char* nameFunc, Func& oldFn, std::uintptr_t hookFn)
+	inline void safe_write(std::uintptr_t addr, std::uintptr_t data)
 	{
-		std::uintptr_t thunkAddress = (std::uintptr_t)GetIATAddr((UInt8*)GetModuleHandle(NULL), dll, nameFunc);
-		oldFn = (Func)*(std::uintptr_t*)thunkAddress;
-		SafeWrite64(thunkAddress, hookFn);
+		REL::safe_write(addr, &data, sizeof(data));
 	}
 
-	inline std::uintptr_t HookFunc(std::uintptr_t* vtbl, int index, std::uintptr_t hookFn, std::uintptr_t* oldFn)
+	template<typename Func>
+	inline void HookFunc(REL::ID id, Func& oldFn, std::uintptr_t hookFn)
 	{
-		std::uintptr_t returnAddy = vtbl[index];
-		*oldFn = returnAddy;
+		oldFn = (Func)*(std::uintptr_t*)id.address();
 
-		SafeWrite64((std::uintptr_t)(vtbl + index), hookFn);
+		safe_write(id.address(), hookFn);
+	}
 
-		return returnAddy;
+	inline void HookFunc(std::uintptr_t* vtbl, int index, std::uintptr_t hookFn, std::uintptr_t* oldFn)
+	{
+		*oldFn = (std::uintptr_t)(vtbl[index]);
+
+		safe_write((std::uintptr_t)(vtbl + index), hookFn);
 	}
 }
