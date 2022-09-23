@@ -20,6 +20,8 @@ namespace json_preset {
 		InfoPlugin(const std::uint64_t id) noexcept;
 		InfoPlugin(const RE::TESFile* file, const std::string& key) noexcept;
 
+		~InfoPlugin() noexcept {}
+
 		InfoPlugin& operator=(const InfoPlugin&) = delete;
 		InfoPlugin& operator=(InfoPlugin&&) = delete;
 
@@ -49,7 +51,7 @@ namespace json_preset {
 
 		using Values = Settings::Values;
 
-		static Preset& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Preset& GetInstance() noexcept { return instance; }
 
 		void Load() noexcept;
 		void Save() noexcept;
@@ -63,8 +65,8 @@ namespace json_preset {
 
 	private:
 
-		Preset() {}
-		~Preset() {}
+		Preset() noexcept {}
+		~Preset() noexcept {}
 	
 		Preset(const Preset&) = delete;
 		Preset(Preset&&) = delete;
@@ -72,7 +74,7 @@ namespace json_preset {
 		Preset& operator=(const Preset&) = delete;
 		Preset& operator=(Preset&&) = delete;
 
-		inline std::uint64_t AsID(const std::uint32_t id, const bool isInterior) noexcept { return (isInterior ? Interior : 0) | id; }
+		inline [[nodiscard]] std::uint64_t AsID(const std::uint32_t id, const bool isInterior) noexcept { return (isInterior ? Interior : 0) | id; }
 
 		std::unordered_map<std::uint64_t, Values> map;
 

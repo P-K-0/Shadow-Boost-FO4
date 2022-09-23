@@ -62,7 +62,7 @@ namespace Shadow {
 
 	public:
 
-		static Boost& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Boost& GetInstance() noexcept { return instance; }
 
 		void GameLoaded() noexcept;
 
@@ -79,7 +79,7 @@ namespace Shadow {
 		void SetPlayerLocation() noexcept;
 
 		void Run() noexcept { SetupFps(); run = true; }
-		void Pause() noexcept { if (Settings::Ini::GetInstance().IsPauseInMenu()) { run = false; } }
+		void Pause() noexcept { run = false; }
 
 		virtual RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_source);
 		virtual RE::BSEventNotifyControl ProcessEvent(const TESLoadGameEvent& a_event, RE::BSTEventSource<TESLoadGameEvent>* a_source);
@@ -90,7 +90,6 @@ namespace Shadow {
 
 		operator bool() noexcept;
 
-		[[nodiscard]] const float& GetFps() const noexcept { return fps; }
 		[[nodiscard]] const float& GetMs() const noexcept { return avg; }
 		[[nodiscard]] const float& GetDynamicvalue() const noexcept { return dyn; }
 
@@ -113,8 +112,8 @@ namespace Shadow {
 		
 	private:
 
-		Boost() {}
-		~Boost() {}
+		Boost() noexcept {}
+		~Boost() noexcept {}
 
 		Boost(const Boost&) = delete;
 		Boost(Boost&&) = delete;
@@ -131,7 +130,6 @@ namespace Shadow {
 		float countFps{};
 		float target{};
 		float tolerance{};
-		float fps{};
 		float avg{};
 		float dyn{};
 
@@ -147,8 +145,6 @@ namespace Shadow {
 		std::int32_t o_GrGrid{};
 		float o_GrScale{};
 		std::int32_t o_GrCascade{};
-
-		std::unordered_map<std::string, bool> mapMenus;
 
 		static Boost instance;
 	};

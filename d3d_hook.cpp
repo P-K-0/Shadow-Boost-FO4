@@ -19,7 +19,7 @@ namespace Hook {
 		return true;
 	}
 
-	void D3D::EnableCursor(bool enable)
+	void D3D::EnableCursor(bool enable) noexcept
 	{
 		static bool e{};
 
@@ -49,35 +49,62 @@ namespace Hook {
 
 	LRESULT __stdcall D3D::WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
+		static std::int32_t vkExtended{};
+
 		auto& menu = imgui_menu::Menu::GetInstance();
 
 		switch (msg) {
 
+		case WM_SYSKEYUP:
+		case WM_KEYUP:
+
+			vkExtended = 0;
+
+			break;
+
+		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 
 			{
-				bool isPressed = (lParam & 0x40000000) != 0x0;
+				std::int32_t vkCode = LOWORD(wParam);
+				std::uint16_t flags = HIWORD(lParam);
+
+				switch (vkCode) {
+
+				case VK_CONTROL:
+				case VK_SHIFT:
+				case VK_MENU:
+
+					vkExtended = vkCode;
+
+					return true;
+				}
+
+				if ((flags & KF_REPEAT) == KF_REPEAT)
+					return true;
+
 				auto& settings = Settings::Ini::GetInstance();
 
-				if (!isPressed && !menu.WaitForKey() && wParam == settings.GetKey()) {
+				if (!menu.WaitForKey() && vkCode == settings.GetKey() && vkExtended == settings.GetExtendedKey()) {
 
 					menu.Show();
 
 					EnableCursor(menu.IsShow());
 
-					const auto input = RE::BSInputDeviceManager::GetSingleton();
+					const auto control = RE::ControlMap::GetSingleton();
 
-					if (input)
-						input->pollingEnabled = !menu.IsShow();
+					if (control)
+						control->ignoreKeyboardMouse = menu.IsShow();
 				}
 
-				if (!isPressed && menu.WaitForKey()) {
+				if (menu.WaitForKey()) {
 
-					settings.GetKey() = static_cast<std::int32_t>(wParam);
+					settings.GetKey() = vkCode;
+					settings.GetExtendedKey() = vkExtended;
 					settings.SetNameKey();
 
 					menu.DisableWaitForKey();
-				}	
+				}
 			}
 
 			break;

@@ -39,6 +39,11 @@ namespace Settings {
 		return ini.SetValue(Sections[static_cast<int>(section)].c_str(), key.c_str(), std::to_string(value).c_str());
 	}
 
+	inline SI_Error SetValue(CSimpleIni& ini, const Section& section, const std::string& key, std::string& value)
+	{
+		return ini.SetValue(Sections[static_cast<int>(section)].c_str(), key.c_str(), value.c_str());
+	}
+
 	inline float stof(const std::string& str) { return std::stof(str); }
 
 	inline int stoi(const std::string& str) { return std::stoi(str); }
@@ -72,27 +77,39 @@ namespace Settings {
 		return ini.GetValue(Sections[static_cast<int>(section)].c_str(), key.c_str(), def);
 	}
 
+	const std::string Ini::GetNameKey(std::int32_t key) noexcept
+	{
+		char sKey[255]{};
+
+		std::uint32_t scanCode = MapVirtualKey(key, MAPVK_VK_TO_VSC);
+		scanCode <<= 16;
+
+		GetKeyNameText(scanCode, sKey, sizeof sKey);
+
+		return sKey;
+	}
+
 	void Ini::SetNameKey(bool wait) noexcept
 	{
 		if (wait) {
 
-			nameKey = Translation::Language::GetInstance()[Translation::LangID::WaitForNewKey];
+			strHotkey = Translation::Language::GetInstance()[Translation::LangID::WaitForNewKey];
 
 			return;
 		}
 
-		char nKey[255]{};
+		strHotkey.clear();
 
-		std::uint32_t scanCode = MapVirtualKey(iKey, MAPVK_VK_TO_VSC);
-		scanCode <<= 16;
+		if (iExtendedKey != 0)
+			strHotkey = GetNameKey(iExtendedKey) + "+";
 
-		GetKeyNameText(scanCode, nKey, sizeof(nKey));
-
-		nameKey = nKey;
+		strHotkey += GetNameKey(iKey);
 	}
 
 	void Ini::ParseString(const std::string& str, std::vector<std::string>& vec) noexcept
 	{
+		vec.clear();
+
 		std::string tmp{ str };
 
 		std::size_t found{};
@@ -112,11 +129,32 @@ namespace Settings {
 				tmp = "";
 			}
 		}
+
+		if (!vec.empty())
+			std::sort(vec.begin(), vec.end());
+
+		//for (auto& v : vec)
+		//	logger::info("{}", v.c_str());
+	}
+
+	const bool Ini::IsMenuOpen() noexcept
+	{
+		auto ui = RE::UI::GetSingleton();
+
+		if (!ui)
+			return false;
+
+		bool ret{};
+		
+		std::for_each(vBlacklistMenu.begin(), vBlacklistMenu.end(), [&](const std::string& menu) { ret |= ui->GetMenuOpen(menu.c_str()); });
+
+		return ret;
 	}
 
 	void Ini::SetDefault() noexcept
 	{
 		iKey = DefaultKey;
+		iExtendedKey = DefaultExtendedKey;
 
 		m_values.fFpsTarget = DefaultFpsTarget;
 		m_values.fFpsDelay = DefaultFpsDelay;
@@ -169,6 +207,10 @@ namespace Settings {
 		bTransparent = DefaultTransparent;
 		bPauseInMenu = DefaultPauseInMenu;
 
+		sBlackListMenu = DefaultBlackListMenu;
+
+		ParseString(sBlackListMenu, vBlacklistMenu);
+
 		SetNameKey();
 	}
 
@@ -189,6 +231,7 @@ namespace Settings {
 			return;
 
 		iKey = GetValue(ini, Section::Main, "iKey", DefaultKey);
+		iExtendedKey = GetValue(ini, Section::Main, "iExtendedKey", DefaultExtendedKey);
 
 		m_values.fFpsTarget = GetValue(ini, Section::Main, "fFpsTarget", DefaultFpsTarget);
 		m_values.fFpsDelay = GetValue(ini, Section::Main, "fFpsDelay", DefaultFpsDelay);
@@ -241,7 +284,9 @@ namespace Settings {
 		bTransparent = GetValue(ini, Section::Log, "bTransparent", DefaultTransparent);
 		bPauseInMenu = GetValue(ini, Section::Log, "bPauseInMenu", DefaultPauseInMenu);
 
-		ParseString(GetValue(ini, Section::Main, "sBlackListMenu", DefaultBlackListMenus), blacklistMenus);
+		sBlackListMenu = GetValue(ini, Section::Main, "sBlackListMenu", DefaultBlackListMenu);
+
+		ParseString(sBlackListMenu, vBlacklistMenu);
 
 		SetNameKey();
 	}
@@ -253,10 +298,11 @@ namespace Settings {
 		ini.SetUnicode();
 		SI_Error error = ini.LoadFile(dirLog.c_str());
 
-		if (error != 0)
-			return false;
+		//if (error != 0)
+		//	return false;
 
 		SetValue(ini, Section::Main, "iKey", iKey);
+		SetValue(ini, Section::Main, "iExtendedKey", iExtendedKey);
 
 		SetValue(ini, Section::Main, "fFpsTarget", m_values.fFpsTarget);
 		SetValue(ini, Section::Main, "fFpsDelay", m_values.fFpsDelay);
@@ -264,6 +310,8 @@ namespace Settings {
 
 		SetValue(ini, Section::Main, "fMinDistance", values.fMinDistance);
 		SetValue(ini, Section::Main, "fMaxDistance", values.fMaxDistance);
+
+		SetValue(ini, Section::Main, "sBlackListMenu", sBlackListMenu);
 
 		SetValue(ini, Section::Main, "fDynamicValueFactor", values.fShadowFactor);
 

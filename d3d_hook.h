@@ -16,12 +16,12 @@ namespace Hook {
 
 	public:
 
-		static [[nodiscard]] bool Register() noexcept;
+		[[nodiscard]] static bool Register() noexcept;
 
 	private:
 
-		D3D() {}
-		~D3D() {}
+		D3D() noexcept {}
+		~D3D() noexcept {}
 
 		D3D(const D3D&) = delete;
 		D3D(D3D&&) = delete;
@@ -36,7 +36,7 @@ namespace Hook {
 		static ATOM __stdcall RegisterClassExHook(const WNDCLASSEXA*);
 		static BOOL __stdcall ClipCursorHook(RECT*);
 
-		static void EnableCursor(bool enable);
+		static void EnableCursor(bool enable) noexcept;
 
 		struct OldFuncs {
 

@@ -10,7 +10,7 @@ namespace imgui_menu {
 
 	public:
 
-		static Menu& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Menu& GetInstance() noexcept { return instance; }
 
 		[[nodiscard]] bool Init(HWND hWnd, ID3D11Device*, ID3D11DeviceContext*) noexcept;
 
@@ -26,8 +26,8 @@ namespace imgui_menu {
 
 	private:
 
-		Menu() {}
-		~Menu() {}
+		Menu() noexcept {}
+		~Menu() noexcept {}
 
 		Menu(const Menu&) = delete;
 		Menu(Menu&&) = delete;

@@ -46,8 +46,6 @@ namespace imgui_menu {
 		return ret;
 	}
 
-//#define IMGUI_ADD_TEXT(lang_id, text) ImGui::Text(lang[lang_id], text)
-
 	void Menu::Clear() noexcept
 	{
 		auto& settings = Settings::Ini::GetInstance();
@@ -74,8 +72,6 @@ namespace imgui_menu {
 		if (ImGui::Begin(lang[LangID::CaptionWnd], nullptr, flags) && shadow) {
 
 			if (ImGui::CollapsingHeader(lang[LangID::StatusHdr])) {
-
-				//IMGUI_ADD_TEXT(LangID::AvgMs, shadow.GetMs());
 
 				ImGui::Text(lang[LangID::AvgMs], shadow.GetMs());
 				ImGui::Text(lang[LangID::DynValue], shadow.GetDynamicvalue());
@@ -209,11 +205,11 @@ namespace imgui_menu {
 
 			if (ImGui::CollapsingHeader(lang[LangID::OthersHdr])) {
 
-				ImGui::Text(lang[LangID::HotKey]);
+				ImGui::Text(lang[LangID::Hotkey]);
 
 				ImGui::SameLine();
 
-				if (ImGui::Button(settings.GetNameKey().c_str())) {
+				if (ImGui::Button(settings.GetHotkey().c_str())) {
 
 					settings.SetNameKey(true);
 
@@ -226,13 +222,18 @@ namespace imgui_menu {
 
 				ImGui::Checkbox(lang[LangID::Transparent], &settings.IsTransparent());
 
-				ImGui::Checkbox(lang[LangID::StopInMenu], &settings.IsPauseInMenu());
+				if (ImGui::Checkbox(lang[LangID::StopInMenu], &settings.IsPauseInMenu())) {
+
+					if (!settings.IsPauseInMenu())
+						shadow.Run();
+				}
 			}
 
 			if (ImGui::CollapsingHeader(lang[LangID::CreditsHdr])) {
 
 				ImGui::Text("ImGui by ocornut");
 				ImGui::Text("SimpleIni by brofield");
+				ImGui::Text("Jsoncpp");
 				ImGui::Text("Special thanks to my patrons MasonJ and Brac for their support");
 				ImGui::Text("F4SE team for creating the script extender");
 				ImGui::Text("Bethesda for creating Fallout 4");

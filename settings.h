@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 #include "pch.h"
 
@@ -43,17 +43,18 @@ namespace Settings {
 	constexpr std::int32_t DefaultGrCascade = 1;
 
 	constexpr std::int32_t DefaultKey = 123;
+	constexpr std::int32_t DefaultExtendedKey = 0;
 
 	constexpr bool DefaultLog = false;
 	constexpr bool DefaultTransparent = false;
-	constexpr bool DefaultPauseInMenu = true;
+	constexpr bool DefaultPauseInMenu = false;
 	constexpr bool DefaultShadow = true;
 	constexpr bool DefaultLod = true;
 	constexpr bool DefaultGrass = true;
 	constexpr bool DefaultBlock = true;
 	constexpr bool DefaultGodRays = true;
 
-	static const char* DefaultBlackListMenus = "CursorMenu;HUDMenu;FaderMenu;PromptMenu";
+	static const char* DefaultBlackListMenu = "MainMenu;LoadingMenu;PipboyMenu;PauseMenu;SleepWaitMenu"; 
 
 	struct MainValues {
 
@@ -109,7 +110,7 @@ namespace Settings {
 
 	public:
 
-		static Ini& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Ini& GetInstance() noexcept { return instance; }
 
 		void ReadSettings() noexcept;
 		[[nodiscard]] bool WriteSettings() noexcept;
@@ -157,8 +158,9 @@ namespace Settings {
 		[[nodiscard]] bool& IsPauseInMenu() noexcept { return bPauseInMenu; }
 
 		[[nodiscard]] std::int32_t& GetKey() noexcept { return iKey; }
+		[[nodiscard]] std::int32_t& GetExtendedKey() noexcept { return iExtendedKey; }
 
-		[[nodiscard]] const std::string& GetNameKey() const noexcept { return nameKey; }
+		[[nodiscard]] const std::string& GetHotkey() const noexcept { return strHotkey; }
 
 		[[nodiscard]] std::int32_t& GetGrQuality() noexcept { return m_values.grQuality; }
 		[[nodiscard]] std::int32_t& GetGrGrid() noexcept { return m_values.grGrid; }
@@ -177,12 +179,12 @@ namespace Settings {
 		[[nodiscard]] const MainValues& GetMainValues() const noexcept { return m_values; }
 		[[nodiscard]] const Values& GetValues() const noexcept { return values; }
 
-		[[nodiscard]] const std::vector<std::string>& GetBlackListMenus() noexcept { return blacklistMenus; }
+		[[nodiscard]] const bool IsMenuOpen() noexcept;
 
 	private:
 
-		Ini() {}
-		~Ini() {}
+		Ini() noexcept {}
+		~Ini() noexcept {}
 
 		Ini(const Ini&) = delete;
 		Ini(Ini&&) = delete;
@@ -191,6 +193,7 @@ namespace Settings {
 		Ini& operator=(Ini&&) = delete;
 
 		void ParseString(const std::string& str, std::vector<std::string>& vec) noexcept;
+		const std::string GetNameKey(std::int32_t key) noexcept;
 
 		MainValues m_values{};
 		Values values{};
@@ -198,12 +201,16 @@ namespace Settings {
 		bool bLog{ DefaultLog };
 		bool bTransparent{ DefaultTransparent };
 		bool bPauseInMenu{ DefaultPauseInMenu };
-		std::vector<std::string> blacklistMenus;
 
-		int iKey{ DefaultKey };
+		std::vector<std::string> vBlacklistMenu;
 
-		std::string dirLog{};
-		std::string nameKey{};
+		std::int32_t iKey{ DefaultKey };
+		std::int32_t iExtendedKey{ DefaultExtendedKey };
+
+		std::string dirLog;
+		std::string strHotkey;
+
+		std::string sBlackListMenu;
 
 		static Ini instance;
 	};

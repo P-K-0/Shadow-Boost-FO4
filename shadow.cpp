@@ -83,6 +83,7 @@ namespace Shadow {
 		auto& settings = Settings::Ini::GetInstance();
 		
 		target = Second / settings.GetFpsTarget();
+
 		tolerance = settings.GetMsTolerance();
 
 		oldTime = std::chrono::high_resolution_clock::now();
@@ -161,7 +162,6 @@ namespace Shadow {
 		auto delta = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - oldTime);
 
 		avg = static_cast<float>(delta.count()) / Second / settings.GetFpsDelay(); 
-		//fps = Second / avg;
 
 		oldTime = std::chrono::high_resolution_clock::now();
 
@@ -234,21 +234,12 @@ namespace Shadow {
 
 	RE::BSEventNotifyControl Boost::ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_source)
 	{
-		if (!a_source)
+		if (!a_source || !Settings::Ini::GetInstance().IsPauseInMenu())
 			return RE::BSEventNotifyControl::kContinue;
 
-		for (auto& m : Settings::Ini::GetInstance().GetBlackListMenus())
-			if (_strcmpi(m.c_str(), a_event.menuName.c_str()) == 0)
-				return RE::BSEventNotifyControl::kContinue;
+		Settings::Ini::GetInstance().IsMenuOpen() ? Pause() : Run();
 
-		mapMenus[a_event.menuName.c_str()] = a_event.opening;
-
-		bool isOpen{};
-
-		for (auto& map : mapMenus)
-			isOpen |= map.second;
-
-		isOpen ? Pause() : Run();
+		//logger::info("{} {} {} ", a_event.menuName.c_str(), a_event.opening, cntMenusOpened);
 
 		return RE::BSEventNotifyControl::kContinue;
 	}

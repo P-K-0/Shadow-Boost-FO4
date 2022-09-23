@@ -78,7 +78,7 @@ namespace Translation {
 		GrScale,
 		GrCascade,
 		OthersHdr,
-		HotKey,
+		Hotkey,
 		EnableLog,
 		Transparent,
 		StopInMenu,
@@ -106,7 +106,7 @@ namespace Translation {
 
 	public:
 
-		static Language& GetInstance() { return instance; }
+		[[nodiscard]] static Language& GetInstance() noexcept { return instance; }
 
 		void Load() noexcept;
 
@@ -117,8 +117,8 @@ namespace Translation {
 
 	private:
 
-		Language() {}
-		~Language() {}
+		Language() noexcept {}
+		~Language() noexcept {}
 
 		Language(const Language&) = delete;
 		Language(Language&&) = delete;

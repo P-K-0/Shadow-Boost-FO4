@@ -7,7 +7,7 @@
 
 namespace f4se {
 
-	bool Plugin::Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info)
+	bool Plugin::Query(const F4SE::QueryInterface* a_f4se, F4SE::PluginInfo* a_info) noexcept
 	{
 #ifndef NDEBUG
 		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
@@ -68,7 +68,7 @@ namespace f4se {
 		return true;
 	}
 
-	bool Plugin::Load(const F4SE::LoadInterface* a_f4se)
+	bool Plugin::Load(const F4SE::LoadInterface* a_f4se) noexcept
 	{
 		F4SE::Init(a_f4se);
 
@@ -102,7 +102,7 @@ namespace f4se {
 		return true;
 	}
 
-	void Plugin::MsgCallback(F4SE::MessagingInterface::Message* msg)
+	void Plugin::MsgCallback(F4SE::MessagingInterface::Message* msg) noexcept
 	{
 		switch (msg->type) {
 
@@ -116,7 +116,7 @@ namespace f4se {
 		}
 	}
 
-	void Plugin::AddTask(F4SE::ITaskDelegate* task)
+	void Plugin::AddTask(F4SE::ITaskDelegate* task) noexcept
 	{
 		if (f4se_task_interface)
 			f4se_task_interface->AddTask(task);
