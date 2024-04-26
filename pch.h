@@ -29,4 +29,3 @@ using namespace std::literals;
 #include "IMGUI/imgui_impl_win32.h"
 
 #include "std_libraries.h"
-

@@ -31,22 +31,26 @@ namespace f4se {
 #endif
 
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("%g(%#): [%^%l%$] %v"s);
+		spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
 
-		logger::info(FMT_STRING("{} v{}"), Version::Project, Version::Name);
+		logger::info(FMT_STRING("{} {}"), Version::Project, Version::SVersion);
 
 		a_info->infoVersion = F4SE::PluginInfo::kVersion;
 		a_info->name = Version::Project.data();
 		a_info->version = Version::Major;
 
 		if (a_f4se->IsEditor()) {
+
 			logger::critical("loaded in editor"sv);
+
 			return false;
 		}
 
 		const auto ver = a_f4se->RuntimeVersion();
 		if (ver < F4SE::RUNTIME_1_10_130) {
+
 			logger::critical(FMT_STRING("unsupported runtime v{}"sv), ver.string());
+
 			return false;
 		}
 
@@ -57,9 +61,9 @@ namespace f4se {
 			return false;
 		}
 
-		Settings::Ini::GetInstance().ReadSettings();
+		Settings::Ini::GetSingleton().ReadSettings();
 
-		Translation::Language::GetInstance().Load();
+		Translation::Language::GetSingleton().Load();
 
 		Hook::D3D::Register();
 
@@ -73,6 +77,7 @@ namespace f4se {
 		F4SE::Init(a_f4se);
 
 		f4se_msg_interface = (F4SE::MessagingInterface*)(F4SE::GetMessagingInterface());
+
 		if (!f4se_msg_interface) {
 
 			logger::error("Messaging Interface error!");
@@ -81,6 +86,7 @@ namespace f4se {
 		}
 
 		f4se_task_interface = (F4SE::TaskInterface*)(F4SE::GetTaskInterface());
+
 		if (!f4se_task_interface) {
 
 			logger::error("Task interface error!");
@@ -89,6 +95,7 @@ namespace f4se {
 		}
 
 		f4se_papyrus_interface = (F4SE::PapyrusInterface*)(F4SE::GetPapyrusInterface());
+
 		if (!f4se_papyrus_interface) {
 
 			logger::error("Papyrus interface error!");
@@ -96,8 +103,9 @@ namespace f4se {
 			return false;
 		}
 
-		if (f4se_msg_interface)
+		if (f4se_msg_interface) {
 			return f4se_msg_interface->RegisterListener(MsgCallback);
+		}
 
 		return true;
 	}
@@ -108,9 +116,9 @@ namespace f4se {
 
 		case F4SE::MessagingInterface::kGameLoaded:
 
-			Shadow::Boost::GetInstance().GameLoaded();
+			Shadow::Boost::GetSingleton().GameLoaded();
 
-			json_preset::Preset::GetInstance().Load();
+			json_preset::Preset::GetSingleton().Load();
 
 			break;
 		}
@@ -118,7 +126,8 @@ namespace f4se {
 
 	void Plugin::AddTask(F4SE::ITaskDelegate* task) noexcept
 	{
-		if (f4se_task_interface)
+		if (f4se_task_interface) {
 			f4se_task_interface->AddTask(task);
+		}
 	}
 }

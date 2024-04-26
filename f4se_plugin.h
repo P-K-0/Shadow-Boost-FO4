@@ -12,7 +12,7 @@ namespace f4se {
 
 	public:
 
-		[[nodiscard]] static Plugin& GetInstance() noexcept
+		[[nodiscard]] static Plugin& GetSingleton() noexcept
 		{
 			static Plugin instance;
 			return instance;

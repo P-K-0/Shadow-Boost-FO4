@@ -4,7 +4,7 @@
 
 namespace Translation {
 
-	static const char* TranslationsDir = "Data\\F4SE\\Plugins\\Translations\\";
+	static const char* TranslationsDir = "Data\\F4SE\\Plugins\\Translations\\ShadowBoostFO4\\";
 	static const char* TranslationFile = "Language.txt";
 
 	static const char* DefaultLang = "en";
@@ -60,12 +60,12 @@ namespace Translation {
 		TerrainManagerHdr,
 		EnableBlockLevels,
 		BlockFactor,
-		MinBlockLevel2,
-		MaxBlockLevel2,
-		MinBlockLevel1,
-		MaxBlockLevel1,
-		MinBlockLevel0,
-		MaxBlockLevel0,
+		BlockLevel2,
+		BlockLevel1,
+		BlockLevel0,
+		DynValues,
+		StatValues,
+		CaptEditor,
 		GrassHdr,
 		EnableGrass,
 		GrassFactor,
@@ -78,7 +78,7 @@ namespace Translation {
 		GrScale,
 		GrCascade,
 		OthersHdr,
-		Hotkey,
+		Hotkeys,
 		EnableLog,
 		Transparent,
 		StopInMenu,
@@ -87,6 +87,30 @@ namespace Translation {
 		Save,
 		Default,
 		WaitForNewKey,
+		MenuFile,
+		MenuSettings,
+		MenuExit,
+		MenuPreset,
+		MenuEditor,
+		MenuInfo,
+		MenuHelp,
+		MenuAbout,
+		ComboLevel0,
+		ComboLevel1,
+		ComboLevel2,
+		ComboLevel3,
+		Level,
+		Settings,
+		OpenMenu,
+		RunPausePlugin,
+		FontScale,
+		Classic,
+		Light,
+		Dark,
+		MenuStyles,
+		Cancel,
+		SaveClose,
+		About,	
 		Total
 	};
 
@@ -106,14 +130,14 @@ namespace Translation {
 
 	public:
 
-		[[nodiscard]] static Language& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Language& GetSingleton() noexcept { return instance; }
 
 		void Load() noexcept;
 
 		[[nodiscard]] const char* operator[](const LangID id) noexcept { return vec[static_cast<std::uint32_t>(id)].c_str(); }
 
 		[[nodiscard]] const ImWchar* SelectGlyph(ImGuiIO& io, const LangGlyph& glyph) noexcept;
-		[[nodiscard]] void SetGlyph(ImGuiIO& io) noexcept;
+		[[nodiscard]] void SetGlyph(ImGuiIO& io, float sizePixels = 13) noexcept;
 
 	private:
 
@@ -132,7 +156,7 @@ namespace Translation {
 		std::string sLang{ DefaultLang };
 
 		std::vector<std::string> vec{
-			"Shadow Boost FO4 by PK0",
+			"Shadow Boost FO4",
 			"Status",
 			"Avg ms frames : %.3f",
 			"Dynamic Value : %.3f",
@@ -181,12 +205,12 @@ namespace Translation {
 			"Terrain Manager",
 			"Enable Block Levels",
 			"Block Factor",
-			"Min Block Level 2",
-			"Max Block Level 2",
-			"Min Block Level 1",
-			"Max Block Level 1", 
-			"Min Block Level 0",
-			"Max Block Level 0", 
+			"Block Level 2",
+			"Block Level 1",
+			"Block Level 0",
+			"Dynamic values :",
+			"Static values :",
+			"Editor",
 			"Grass",
 			"Enable Grass",
 			"Grass Factor",
@@ -199,7 +223,7 @@ namespace Translation {
 			"Scale",
 			"Cascade",
 			"Others",
-			"Hotkey : ",
+			"Hotkeys : ",
 			"Enable Log (if activated it means that\nthis window always remains active)",
 			"Make it transparent",
 			"Pause when a menu is open",
@@ -208,6 +232,30 @@ namespace Translation {
 			"Save",
 			"Default",
 			"Waiting for a new key",
+			"File",
+			"Settings...",
+			"Exit",
+			"Preset",
+			"Editor ...",
+			"Info",
+			"Help ...",
+			"About ...",
+			"Level 0 (Default)",
+			"Level 1 (Low)",
+			"Level 2 (Lower)",
+			"Level 3 (Lowest)",
+			"Level",
+			"Settings",
+			"Open menu : ",
+			"Run/Pause plugin : ",
+			"Font Scale",
+			"Classic",
+			"Light",
+			"Dark",
+			"Menu Styles",
+			"Cancel",
+			"Save & Close",
+			"About",
 			"unused"
 		};
 

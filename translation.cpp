@@ -108,12 +108,14 @@ namespace Translation {
 		case LangGlyph::Vietnamese:
 
 			return io.Fonts->GetGlyphRangesVietnamese();
-		}
 
-		return io.Fonts->GetGlyphRangesDefault();
+		default:
+
+			return io.Fonts->GetGlyphRangesDefault();
+		}
 	}
 
-	void Language::SetGlyph(ImGuiIO& io) noexcept
+	void Language::SetGlyph(ImGuiIO& io, float sizePixels) noexcept
 	{
 		std::string dir = TranslationsDir;
 		dir += sLang + "\\font.ttf";
@@ -131,7 +133,7 @@ namespace Translation {
 					break;	
 				}
 
-			io.Fonts->AddFontFromFileTTF(dir.c_str(), 13, nullptr, SelectGlyph(io, glyph));
+			io.Fonts->AddFontFromFileTTF(dir.c_str(), sizePixels, nullptr, SelectGlyph(io, glyph));
 		}
 	}
 

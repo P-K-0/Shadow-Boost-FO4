@@ -51,7 +51,7 @@ namespace json_preset {
 
 		using Values = Settings::Values;
 
-		[[nodiscard]] static Preset& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Preset& GetSingleton() noexcept { return instance; }
 
 		void Load() noexcept;
 		void Save() noexcept;
@@ -59,7 +59,7 @@ namespace json_preset {
 		void Add(const std::uint32_t id, const bool isInterior) noexcept;
 		void Remove(const std::uint32_t id, const bool isInterior) noexcept;
 		void Get(const std::uint32_t id, const bool isInterior) noexcept;
-		void InitDefaultValues() noexcept { defValues = Settings::Ini::GetInstance().GetValues(); }
+		void InitDefaultValues() noexcept { defValues = Settings::Ini::GetSingleton().GetValues(); }
 
 		[[nodiscard]] const bool HasPreset() const noexcept { return hasPreset; }
 

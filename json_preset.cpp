@@ -109,6 +109,8 @@ namespace json_preset {
 
 			for (auto& m : root[root_m.c_str()].getMemberNames()) {
 
+				//logger::info("{} {} ", root_m.c_str(), m.c_str());
+
 				std::uint64_t id{};
 
 				for (auto& f : DataHandler->files) {
@@ -118,6 +120,8 @@ namespace json_preset {
 						InfoPlugin info{ f, m.c_str() };
 
 						id = info.GetID();
+
+						//logger::info("{}", id);
 
 						break;
 					}
@@ -150,16 +154,21 @@ namespace json_preset {
 
 				_map.fGrassFactor = rr["fGrassDynamicValueFactor"].asFloat();
 
-				_map.fMinDistBlockLevel2 = rr["fBlockLevel2DistanceMin"].asFloat();
-				_map.fMaxDistBlockLevel2 = rr["fBlockLevel2DistanceMax"].asFloat();
+				_map.blockLevel[0].fDistBlockLevel2 = rr["fBlockLevel2Distance"].asFloat();
+				_map.blockLevel[0].fDistBlockLevel1 = rr["fBlockLevel1Distance"].asFloat();
+				_map.blockLevel[0].fDistBlockLevel0 = rr["fBlockLevel0Distance"].asFloat();
 
-				_map.fMinDistBlockLevel1 = rr["fBlockLevel1DistanceMin"].asFloat();
-				_map.fMaxDistBlockLevel1 = rr["fBlockLevel1DistanceMax"].asFloat();
+				_map.blockLevel[1].fDistBlockLevel2 = rr["fBlockLevel2DistanceLevel1"].asFloat();
+				_map.blockLevel[1].fDistBlockLevel1 = rr["fBlockLevel1DistanceLevel1"].asFloat();
+				_map.blockLevel[1].fDistBlockLevel0 = rr["fBlockLevel0DistanceLevel1"].asFloat();
 
-				_map.fMinDistBlockLevel0 = rr["fBlockLevel0DistanceMin"].asFloat();
-				_map.fMaxDistBlockLevel0 = rr["fBlockLevel0DistanceMax"].asFloat();
+				_map.blockLevel[2].fDistBlockLevel2 = rr["fBlockLevel2DistanceLevel2"].asFloat();
+				_map.blockLevel[2].fDistBlockLevel1 = rr["fBlockLevel1DistanceLevel2"].asFloat();
+				_map.blockLevel[2].fDistBlockLevel0 = rr["fBlockLevel0DistanceLevel2"].asFloat();
 
-				_map.fBlockFactor = rr["fBlockDynamicValueFactor"].asFloat();
+				_map.blockLevel[3].fDistBlockLevel2 = rr["fBlockLevel2DistanceLevel3"].asFloat();
+				_map.blockLevel[3].fDistBlockLevel1 = rr["fBlockLevel1DistanceLevel3"].asFloat();
+				_map.blockLevel[3].fDistBlockLevel0 = rr["fBlockLevel0DistanceLevel3"].asFloat();
 			}
 		}
 	}
@@ -214,16 +223,21 @@ namespace json_preset {
 
 				r["fGrassDynamicValueFactor"] = m.second.fGrassFactor;
 
-				r["fBlockLevel2DistanceMin"] = m.second.fMinDistBlockLevel2;
-				r["fBlockLevel2DistanceMax"] = m.second.fMaxDistBlockLevel2;
+				r["fBlockLevel2Distance"] = m.second.blockLevel[0].fDistBlockLevel2;
+				r["fBlockLevel1Distance"] = m.second.blockLevel[0].fDistBlockLevel1;
+				r["fBlockLevel0Distance"] = m.second.blockLevel[0].fDistBlockLevel0;
 
-				r["fBlockLevel1DistanceMin"] = m.second.fMinDistBlockLevel1;
-				r["fBlockLevel1DistanceMax"] = m.second.fMaxDistBlockLevel1;
+				r["fBlockLevel2DistanceLevel1"] = m.second.blockLevel[1].fDistBlockLevel2;
+				r["fBlockLevel1DistanceLevel1"] = m.second.blockLevel[1].fDistBlockLevel1;
+				r["fBlockLevel0DistanceLevel1"] = m.second.blockLevel[1].fDistBlockLevel0;
 
-				r["fBlockLevel0DistanceMin"] = m.second.fMinDistBlockLevel0;
-				r["fBlockLevel0DistanceMax"] = m.second.fMaxDistBlockLevel0;
+				r["fBlockLevel2DistanceLevel2"] = m.second.blockLevel[2].fDistBlockLevel2;
+				r["fBlockLevel1DistanceLevel2"] = m.second.blockLevel[2].fDistBlockLevel1;
+				r["fBlockLevel0DistanceLevel2"] = m.second.blockLevel[2].fDistBlockLevel0;
 
-				r["fBlockDynamicValueFactor"] = m.second.fBlockFactor;
+				r["fBlockLevel2DistanceLevel3"] = m.second.blockLevel[3].fDistBlockLevel2;
+				r["fBlockLevel1DistanceLevel3"] = m.second.blockLevel[3].fDistBlockLevel1;
+				r["fBlockLevel0DistanceLevel3"] = m.second.blockLevel[3].fDistBlockLevel0;
 
 				break;
 			}
@@ -238,7 +252,7 @@ namespace json_preset {
 	{
 		const auto& it = map.find(AsID(id, isInterior));
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		if (it != map.end()) {
 
@@ -258,7 +272,7 @@ namespace json_preset {
 	{
 		hasPreset = true;
 
-		map[AsID(id, isInterior)] = Settings::Ini::GetInstance().GetValues();
+		map[AsID(id, isInterior)] = Settings::Ini::GetSingleton().GetValues();
 	}
 
 	void Preset::Remove(const std::uint32_t id, const bool isInterior) noexcept

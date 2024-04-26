@@ -7,7 +7,7 @@
 
 namespace Shadow {
 
-	constexpr float Second = 1000.0;
+	constexpr float Millisecond = 1000.0;
 
 	static REL::Relocation<float*> fDirShadowDistance(REL::ID(777729));
 
@@ -17,9 +17,9 @@ namespace Shadow {
 
 	static REL::Relocation<float*> fGrassStartFadeDistance(REL::ID(183225));
 
-	static REL::Relocation<float*> fBlockLevel2Distance(REL::ID(379949));
-	static REL::Relocation<float*> fBlockLevel1Distance(REL::ID(1304050));
 	static REL::Relocation<float*> fBlockLevel0Distance(REL::ID(646264));
+	static REL::Relocation<float*> fBlockLevel1Distance(REL::ID(1304050));
+	static REL::Relocation<float*> fBlockLevel2Distance(REL::ID(379949));
 
 	static REL::Relocation<std::int32_t*> GrQuality(REL::ID(957649));
 	static REL::Relocation<std::int32_t*> GrGrid(REL::ID(289565));
@@ -62,7 +62,7 @@ namespace Shadow {
 
 	public:
 
-		[[nodiscard]] static Boost& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Boost& GetSingleton() noexcept { return instance; }
 
 		void GameLoaded() noexcept;
 
@@ -78,8 +78,11 @@ namespace Shadow {
 		void SetupFps() noexcept;
 		void SetPlayerLocation() noexcept;
 
-		void Run() noexcept { SetupFps(); run = true; }
+		void Run() noexcept { if (!run && isLoaded) { SetupFps(); run = true; } }
 		void Pause() noexcept { run = false; }
+
+		[[nodiscard]] const bool& IsRunning() const noexcept { return run; }
+		[[nodiscard]] const bool& IsLoaded() const noexcept { return isLoaded; }
 
 		virtual RE::BSEventNotifyControl ProcessEvent(const RE::MenuOpenCloseEvent& a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* a_source);
 		virtual RE::BSEventNotifyControl ProcessEvent(const TESLoadGameEvent& a_event, RE::BSTEventSource<TESLoadGameEvent>* a_source);
@@ -125,6 +128,7 @@ namespace Shadow {
 
 		void SaveOriginalValues() noexcept;
 
+		bool isLoaded{};
 		bool run{};
 
 		float countFps{};
@@ -132,6 +136,8 @@ namespace Shadow {
 		float tolerance{};
 		float avg{};
 		float dyn{};
+
+		int indexBlockLevel{};
 
 		float o_fDirShadowDistance{};
 		float o_fLODFadeOutMultObjects{};

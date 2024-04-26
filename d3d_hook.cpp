@@ -19,16 +19,6 @@ namespace Hook {
 		return true;
 	}
 
-	void D3D::EnableCursor(bool enable) noexcept
-	{
-		static bool e{};
-
-		if (e != enable)
-			::ShowCursor(enable);
-
-		e = enable;
-	}
-
 	ATOM __stdcall D3D::RegisterClassExHook(const WNDCLASSEXA* wnd)
 	{
 		WNDCLASSEX tmp = *wnd;
@@ -41,7 +31,7 @@ namespace Hook {
 
 	BOOL __stdcall D3D::ClipCursorHook(RECT* lpRect)
 	{
-		if (imgui_menu::Menu::GetInstance().IsShow())
+		if (imgui_menu::Menu::GetSingleton().IsShow())
 			*lpRect = oldRect;
 
 		return oldFuncs.clipCursor(lpRect);
@@ -49,25 +39,30 @@ namespace Hook {
 
 	LRESULT __stdcall D3D::WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		static std::int32_t vkExtended{};
-
-		auto& menu = imgui_menu::Menu::GetInstance();
+		auto& menu = imgui_menu::Menu::GetSingleton();
 
 		switch (msg) {
 
-		case WM_SYSKEYUP:
-		case WM_KEYUP:
+		case WM_ACTIVATE:
 
-			vkExtended = 0;
+			if (LOWORD(wParam) == WA_INACTIVE) {				
+				Shadow::Boost::GetSingleton().Pause();
+			}
+			else {
+				Shadow::Boost::GetSingleton().Run();
+			}
 
 			break;
 
+		case WM_SYSKEYUP:
+		case WM_KEYUP:
 		case WM_SYSKEYDOWN:
 		case WM_KEYDOWN:
 
 			{
-				std::int32_t vkCode = LOWORD(wParam);
-				std::uint16_t flags = HIWORD(lParam);
+				std::uint16_t vkCode = LOWORD(wParam);
+				std::uint16_t keyFlags = HIWORD(lParam);
+				bool isExtended{};
 
 				switch (vkCode) {
 
@@ -75,42 +70,28 @@ namespace Hook {
 				case VK_SHIFT:
 				case VK_MENU:
 
-					vkExtended = vkCode;
+					isExtended = true;
 
-					return true;
+					break;
 				}
 
-				if ((flags & KF_REPEAT) == KF_REPEAT)
-					return true;
+				bool repeated = (keyFlags & KF_REPEAT) == KF_REPEAT;  
+				bool released = (keyFlags & KF_UP) == KF_UP;
 
-				auto& settings = Settings::Ini::GetInstance();
+				//bool isExtended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
 
-				if (!menu.WaitForKey() && vkCode == settings.GetKey() && vkExtended == settings.GetExtendedKey()) {
-
-					menu.Show();
-
-					EnableCursor(menu.IsShow());
-
-					const auto control = RE::ControlMap::GetSingleton();
-
-					if (control)
-						control->ignoreKeyboardMouse = menu.IsShow();
+				if (released) {
+					menu.OnKeyUp(vkCode, isExtended);
 				}
-
-				if (menu.WaitForKey()) {
-
-					settings.GetKey() = vkCode;
-					settings.GetExtendedKey() = vkExtended;
-					settings.SetNameKey();
-
-					menu.DisableWaitForKey();
+				else {
+					menu.OnKeyDown(vkCode, isExtended, repeated);
 				}
 			}
 
 			break;
 		}
 
-		if (menu.IsShow() && ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		if (menu.IsCursorEnabled() && ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 			return true;
 
 		return oldFuncs.wndProc(hWnd, msg, wParam, lParam);
@@ -118,16 +99,14 @@ namespace Hook {
 
 	HRESULT __stdcall D3D::ClearStateHook(ID3D11DeviceContext* This)
 	{
-		Shadow::Boost::GetInstance()();
-
-		imgui_menu::Menu::GetInstance().Clear();
+		Shadow::Boost::GetSingleton()();
 
 		return oldFuncs.d3dClear(This);
 	}
 
 	HRESULT __stdcall D3D::PresentHook(IDXGISwapChain* This, UINT SyncInterval, UINT Flags)
 	{
-		imgui_menu::Menu::GetInstance().Present();
+		imgui_menu::Menu::GetSingleton().Render();
 
 		return oldFuncs.d3dPresent(This, SyncInterval, Flags);
 	}
@@ -163,7 +142,7 @@ namespace Hook {
 
 		::GetWindowRect(window, &oldRect);
 
-		imgui_menu::Menu::GetInstance().Init(window, (*ppDevice), (*ppImmediateContext));
+		imgui_menu::Menu::GetSingleton().Init(window, (*ppDevice), (*ppImmediateContext));
 
 		return ret;
 	}

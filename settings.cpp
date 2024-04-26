@@ -14,6 +14,9 @@ namespace Settings {
 		Lod,
 		Grass,
 		TerrainManager,
+		TerrainManagerLevel1,
+		TerrainManagerLevel2,
+		TerrainManagerLevel3,
 		GodRays,
 		Log
 	};
@@ -23,6 +26,9 @@ namespace Settings {
 		"Lod",
 		"Grass",
 		"TerrainManager",
+		"TerrainManager:Level1",
+		"TerrainManager:Level2",
+		"TerrainManager:Level3",
 		"GodRays",
 		"Log"
 	};
@@ -52,6 +58,8 @@ namespace Settings {
 
 	inline std::uint32_t stou(const std::string& str) { return std::stoul(str); }
 
+	inline std::uint16_t stoi16(const std::string& str) { return static_cast<std::uint16_t>(stou(str)); }
+
 	inline float GetValue(CSimpleIni& ini, const Section& section, const std::string& key, float def)
 	{
 		return GetValue<>(ini, section, key, def, stof);
@@ -72,38 +80,14 @@ namespace Settings {
 		return GetValue<>(ini, section, key, def, stou);
 	}
 
+	inline std::uint16_t GetValue(CSimpleIni& ini, const Section& section, const std::string& key, std::uint16_t def)
+	{
+		return GetValue<>(ini, section, key, def, stoi16);
+	}
+
 	inline std::string GetValue(CSimpleIni& ini, const Section& section, const std::string& key, const char* def)
 	{
 		return ini.GetValue(Sections[static_cast<int>(section)].c_str(), key.c_str(), def);
-	}
-
-	const std::string Ini::GetNameKey(std::int32_t key) noexcept
-	{
-		char sKey[255]{};
-
-		std::uint32_t scanCode = MapVirtualKey(key, MAPVK_VK_TO_VSC);
-		scanCode <<= 16;
-
-		GetKeyNameText(scanCode, sKey, sizeof sKey);
-
-		return sKey;
-	}
-
-	void Ini::SetNameKey(bool wait) noexcept
-	{
-		if (wait) {
-
-			strHotkey = Translation::Language::GetInstance()[Translation::LangID::WaitForNewKey];
-
-			return;
-		}
-
-		strHotkey.clear();
-
-		if (iExtendedKey != 0)
-			strHotkey = GetNameKey(iExtendedKey) + "+";
-
-		strHotkey += GetNameKey(iKey);
 	}
 
 	void Ini::ParseString(const std::string& str, std::vector<std::string>& vec) noexcept
@@ -151,14 +135,42 @@ namespace Settings {
 		return ret;
 	}
 
-	void Ini::SetDefault() noexcept
+	void Ini::SetDefault(bool isEditor) noexcept
 	{
-		iKey = DefaultKey;
-		iExtendedKey = DefaultExtendedKey;
+		if (!isEditor) {
+
+			iKey = DefaultKey;
+			iExtendedKey = DefaultExtendedKey;
+
+			iKeyStop = DefaultKeyStop;
+			iExtendedKeyStop = DefaultExtendedKeyStop;
+
+			fFontScale = DefaultFontScale;
+
+			bLog = DefaultLog;
+
+			bTransparent = DefaultTransparent;
+			bPauseInMenu = DefaultPauseInMenu;
+
+			sBlackListMenu = DefaultBlackListMenu;
+
+			mnuStyle = MenuStyle::Dark;
+		}
 
 		m_values.fFpsTarget = DefaultFpsTarget;
 		m_values.fFpsDelay = DefaultFpsDelay;
 		m_values.fMsTolerance = DefaultMsTolerance;
+
+		m_values.grQuality = DefaultGrQuality;
+		m_values.grGrid = DefaultGrGrid;
+		m_values.grScale = DefaultGrScale;
+		m_values.grCascade = DefaultGrCascade;
+
+		m_values.bShadowEnable = DefaultShadow;
+		m_values.bGrassEnable = DefaultGrass;
+		m_values.bLodEnable = DefaultLod;
+		m_values.bBlockEnable = DefaultBlock;
+		m_values.bGodRays = DefaultGodRays;
 
 		values.fMinDistance = DefaultMinDistance;
 		values.fMaxDistance = DefaultMaxDistance;
@@ -181,46 +193,25 @@ namespace Settings {
 
 		values.fGrassFactor = DefaultGrassFactor;
 
-		values.fMinDistBlockLevel2 = DefaultMinDistBlockLevel2;
-		values.fMaxDistBlockLevel2 = DefaultMaxDistBlockLevel2;
+		for (int index = 0; index < MaxBlockLevels; index++) {
+		
+			auto& blocklevel = values.blockLevel[index];
 
-		values.fMinDistBlockLevel1 = DefaultMinDistBlockLevel1;
-		values.fMaxDistBlockLevel1 = DefaultMaxDistBlockLevel1;
-
-		values.fMinDistBlockLevel0 = DefaultMinDistBlockLevel0;
-		values.fMaxDistBlockLevel0 = DefaultMaxDistBlockLevel0;
-
-		values.fBlockFactor = DefaultBlockLevelFactor;
-
-		m_values.grQuality = DefaultGrQuality;
-		m_values.grGrid = DefaultGrGrid;
-		m_values.grScale = DefaultGrScale;
-		m_values.grCascade = DefaultGrCascade;
-
-		m_values.bShadowEnable = DefaultShadow;
-		m_values.bGrassEnable = DefaultGrass;
-		m_values.bLodEnable = DefaultLod;
-		m_values.bBlockEnable = DefaultBlock;
-		m_values.bGodRays = DefaultGodRays;
-
-		bLog = DefaultLog;
-		bTransparent = DefaultTransparent;
-		bPauseInMenu = DefaultPauseInMenu;
-
-		sBlackListMenu = DefaultBlackListMenu;
+			blocklevel.fDistBlockLevel2 = DistBlockLevel2[index];
+			blocklevel.fDistBlockLevel1 = DistBlockLevel1[index];
+			blocklevel.fDistBlockLevel0 = DistBlockLevel0[index];
+		}
 
 		ParseString(sBlackListMenu, vBlacklistMenu);
-
-		SetNameKey();
 	}
 
-	void Ini::ReadSettings() noexcept
+	void Ini::ReadSettings(bool isEditor) noexcept
 	{
 		dirLog = "Data\\F4SE\\Plugins\\";
 		dirLog += Version::Project;
 		dirLog += ".ini";
 
-		SetDefault();
+		SetDefault(isEditor);
 
 		CSimpleIni ini;
 
@@ -230,12 +221,35 @@ namespace Settings {
 		if (error != 0)
 			return;
 
-		iKey = GetValue(ini, Section::Main, "iKey", DefaultKey);
-		iExtendedKey = GetValue(ini, Section::Main, "iExtendedKey", DefaultExtendedKey);
+		if (!isEditor) {
+
+			iKey = GetValue(ini, Section::Main, "iKey", DefaultKey);
+			iExtendedKey = GetValue(ini, Section::Main, "iExtendedKey", DefaultExtendedKey);
+
+			iKeyStop = GetValue(ini, Section::Main, "iKeyStop", DefaultKeyStop);
+			iExtendedKeyStop = GetValue(ini, Section::Main, "iExtendedKeyStop", DefaultExtendedKeyStop);
+
+			fFontScale = GetValue(ini, Section::Main, "fFontScale", DefaultFontScale);
+
+			bLog = GetValue(ini, Section::Log, "bLog", DefaultLog);
+			bTransparent = GetValue(ini, Section::Log, "bTransparent", DefaultTransparent);
+			bPauseInMenu = GetValue(ini, Section::Log, "bPauseInMenu", DefaultPauseInMenu);
+
+			sBlackListMenu = GetValue(ini, Section::Main, "sBlackListMenu", DefaultBlackListMenu);
+
+			mnuStyle = static_cast<MenuStyle>(GetValue(ini, Section::Main, "Style", static_cast<int>(MenuStyle::Dark)));
+		}
 
 		m_values.fFpsTarget = GetValue(ini, Section::Main, "fFpsTarget", DefaultFpsTarget);
 		m_values.fFpsDelay = GetValue(ini, Section::Main, "fFpsDelay", DefaultFpsDelay);
 		m_values.fMsTolerance = GetValue(ini, Section::Main, "fMsTolerance", DefaultMsTolerance);
+		m_values.bShadowEnable = GetValue(ini, Section::Main, "bEnable", DefaultShadow);
+
+		m_values.grQuality = GetValue(ini, Section::GodRays, "iQuality", DefaultGrQuality);
+		m_values.grGrid = GetValue(ini, Section::GodRays, "iGrid", DefaultGrGrid);
+		m_values.grScale = GetValue(ini, Section::GodRays, "fScale", DefaultGrScale);
+		m_values.grCascade = GetValue(ini, Section::GodRays, "iCascade", DefaultGrCascade);
+		m_values.bGodRays = GetValue(ini, Section::GodRays, "bEnable", DefaultGodRays);
 
 		values.fMinDistance = GetValue(ini, Section::Main, "fMinDistance", DefaultMinDistance);
 		values.fMaxDistance = GetValue(ini, Section::Main, "fMaxDistance", DefaultMaxDistance);
@@ -253,56 +267,58 @@ namespace Settings {
 
 		values.fLodFactor = GetValue(ini, Section::Lod, "fDynamicValueFactor", DefaultLodFactor);
 
+		m_values.bLodEnable = GetValue(ini, Section::Lod, "bEnable", DefaultLod);
+
 		values.fMinDistGrass = GetValue(ini, Section::Grass, "fGrassStartFadeDistanceMin", DefaultMinDistGrass);
 		values.fMaxDistGrass = GetValue(ini, Section::Grass, "fGrassStartFadeDistanceMax", DefaultMaxDistGrass);
 		
 		values.fGrassFactor = GetValue(ini, Section::Grass, "fDynamicValueFactor", DefaultGrassFactor);
 
-		values.fMinDistBlockLevel2 = GetValue(ini, Section::TerrainManager, "fBlockLevel2DistanceMin", DefaultMinDistBlockLevel2);
-		values.fMaxDistBlockLevel2 = GetValue(ini, Section::TerrainManager, "fBlockLevel2DistanceMax", DefaultMaxDistBlockLevel2);
-
-		values.fMinDistBlockLevel1 = GetValue(ini, Section::TerrainManager, "fBlockLevel1DistanceMin", DefaultMinDistBlockLevel1);
-		values.fMaxDistBlockLevel1 = GetValue(ini, Section::TerrainManager, "fBlockLevel1DistanceMax", DefaultMaxDistBlockLevel1);
-
-		values.fMinDistBlockLevel0 = GetValue(ini, Section::TerrainManager, "fBlockLevel0DistanceMin", DefaultMinDistBlockLevel0);
-		values.fMaxDistBlockLevel0 = GetValue(ini, Section::TerrainManager, "fBlockLevel0DistanceMax", DefaultMaxDistBlockLevel0);
-
-		values.fBlockFactor = GetValue(ini, Section::TerrainManager, "fDynamicValueFactor", DefaultBlockLevelFactor);
-
-		m_values.grQuality = GetValue(ini, Section::GodRays, "iQuality", DefaultGrQuality);
-		m_values.grGrid = GetValue(ini, Section::GodRays, "iGrid", DefaultGrGrid);
-		m_values.grScale = GetValue(ini, Section::GodRays, "fScale", DefaultGrScale);
-		m_values.grCascade = GetValue(ini, Section::GodRays, "iCascade", DefaultGrCascade);
-
-		m_values.bShadowEnable = GetValue(ini, Section::Main, "bEnable", DefaultShadow);
 		m_values.bGrassEnable = GetValue(ini, Section::Grass, "bEnable", DefaultGrass);
-		m_values.bLodEnable = GetValue(ini, Section::Lod, "bEnable", DefaultLod);
+
+		for (int index = 0; index < MaxBlockLevels; index++) {
+
+			Section section = static_cast<Section>(static_cast<int>(Section::TerrainManager) + index);
+
+			auto& blocklevel = values.blockLevel[index];
+
+			blocklevel.fDistBlockLevel2 = GetValue(ini, section, "fBlockLevel2Distance", DistBlockLevel2[index]);
+			blocklevel.fDistBlockLevel1 = GetValue(ini, section, "fBlockLevel1Distance", DistBlockLevel1[index]);
+			blocklevel.fDistBlockLevel0 = GetValue(ini, section, "fBlockLevel0Distance", DistBlockLevel0[index]);
+		}
+
 		m_values.bBlockEnable = GetValue(ini, Section::TerrainManager, "bEnable", DefaultBlock);
-		m_values.bGodRays = GetValue(ini, Section::GodRays, "bEnable", DefaultGodRays);
-
-		bLog = GetValue(ini, Section::Log, "bLog", DefaultLog);
-		bTransparent = GetValue(ini, Section::Log, "bTransparent", DefaultTransparent);
-		bPauseInMenu = GetValue(ini, Section::Log, "bPauseInMenu", DefaultPauseInMenu);
-
-		sBlackListMenu = GetValue(ini, Section::Main, "sBlackListMenu", DefaultBlackListMenu);
 
 		ParseString(sBlackListMenu, vBlacklistMenu);
-
-		SetNameKey();
 	}
 
-	bool Ini::WriteSettings() noexcept
+	bool Ini::WriteSettings(bool isEditor) noexcept
 	{
 		CSimpleIni ini;
 
 		ini.SetUnicode();
-		SI_Error error = ini.LoadFile(dirLog.c_str());
+		ini.LoadFile(dirLog.c_str());
 
+		//SI_Error error = ini.LoadFile(dirLog.c_str());
 		//if (error != 0)
 		//	return false;
 
-		SetValue(ini, Section::Main, "iKey", iKey);
-		SetValue(ini, Section::Main, "iExtendedKey", iExtendedKey);
+		if (!isEditor) {
+
+			SetValue(ini, Section::Main, "iKey", iKey);
+			SetValue(ini, Section::Main, "iExtendedKey", iExtendedKey);
+
+			SetValue(ini, Section::Main, "iKeyStop", iKeyStop);
+			SetValue(ini, Section::Main, "iExtendedKeyStop", iExtendedKeyStop);
+
+			SetValue(ini, Section::Main, "fFontScale", fFontScale);
+
+			SetValue(ini, Section::Log, "bLog", bLog);
+			SetValue(ini, Section::Log, "bTransparent", bTransparent);
+			SetValue(ini, Section::Log, "bPauseInMenu", bPauseInMenu);
+
+			SetValue(ini, Section::Main, "Style", static_cast<int>(mnuStyle));
+		}
 
 		SetValue(ini, Section::Main, "fFpsTarget", m_values.fFpsTarget);
 		SetValue(ini, Section::Main, "fFpsDelay", m_values.fFpsDelay);
@@ -315,6 +331,14 @@ namespace Settings {
 
 		SetValue(ini, Section::Main, "fDynamicValueFactor", values.fShadowFactor);
 
+		SetValue(ini, Section::Main, "bEnable", m_values.bShadowEnable);
+
+		SetValue(ini, Section::GodRays, "iQuality", m_values.grQuality);
+		SetValue(ini, Section::GodRays, "iGrid", m_values.grGrid);
+		SetValue(ini, Section::GodRays, "fScale", m_values.grScale);
+		SetValue(ini, Section::GodRays, "iCascade", m_values.grCascade);
+		SetValue(ini, Section::GodRays, "bEnable", m_values.bGodRays);
+
 		SetValue(ini, Section::Lod, "fLODFadeOutMultObjectsMin", values.fMinDistObjects);
 		SetValue(ini, Section::Lod, "fLODFadeOutMultObjectsMax", values.fMaxDistObjects);
 
@@ -326,36 +350,27 @@ namespace Settings {
 
 		SetValue(ini, Section::Lod, "fDynamicValueFactor", values.fLodFactor);
 
+		SetValue(ini, Section::Lod, "bEnable", m_values.bLodEnable);
+
 		SetValue(ini, Section::Grass, "fGrassStartFadeDistanceMin", values.fMinDistGrass);
 		SetValue(ini, Section::Grass, "fGrassStartFadeDistanceMax", values.fMaxDistGrass);
 
 		SetValue(ini, Section::Grass, "fDynamicValueFactor", values.fGrassFactor);
 
-		SetValue(ini, Section::TerrainManager, "fBlockLevel2DistanceMin", values.fMinDistBlockLevel2);
-		SetValue(ini, Section::TerrainManager, "fBlockLevel2DistanceMax", values.fMaxDistBlockLevel2);
-
-		SetValue(ini, Section::TerrainManager, "fBlockLevel1DistanceMin", values.fMinDistBlockLevel1);
-		SetValue(ini, Section::TerrainManager, "fBlockLevel1DistanceMax", values.fMaxDistBlockLevel1);
-
-		SetValue(ini, Section::TerrainManager, "fBlockLevel0DistanceMin", values.fMinDistBlockLevel0);
-		SetValue(ini, Section::TerrainManager, "fBlockLevel0DistanceMax", values.fMaxDistBlockLevel0);
-
-		SetValue(ini, Section::TerrainManager, "fDynamicValueFactor", values.fBlockFactor);
-
-		SetValue(ini, Section::GodRays, "iQuality", m_values.grQuality);
-		SetValue(ini, Section::GodRays, "iGrid", m_values.grGrid);
-		SetValue(ini, Section::GodRays, "fScale", m_values.grScale);
-		SetValue(ini, Section::GodRays, "iCascade", m_values.grCascade);
-
-		SetValue(ini, Section::Main, "bEnable", m_values.bShadowEnable);
-		SetValue(ini, Section::Lod, "bEnable", m_values.bLodEnable);
 		SetValue(ini, Section::Grass, "bEnable", m_values.bGrassEnable);
-		SetValue(ini, Section::TerrainManager, "bEnable", m_values.bBlockEnable);
-		SetValue(ini, Section::GodRays, "bEnable", m_values.bGodRays);
 
-		SetValue(ini, Section::Log, "bLog", bLog);
-		SetValue(ini, Section::Log, "bTransparent", bTransparent);
-		SetValue(ini, Section::Log, "bPauseInMenu", bPauseInMenu);
+		for (int index = 0; index < MaxBlockLevels; index++) {
+
+			Section section = static_cast<Section>(static_cast<int>(Section::TerrainManager) + index);
+
+			auto& blocklevel = values.blockLevel[index];
+
+			SetValue(ini, section, "fBlockLevel2Distance", blocklevel.fDistBlockLevel2);
+			SetValue(ini, section, "fBlockLevel1Distance", blocklevel.fDistBlockLevel1);
+			SetValue(ini, section, "fBlockLevel0Distance", blocklevel.fDistBlockLevel0);
+		}
+
+		SetValue(ini, Section::TerrainManager, "bEnable", m_values.bBlockEnable);
 
 		return ini.SaveFile(dirLog.c_str()) == 0;		
 	}

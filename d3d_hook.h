@@ -36,8 +36,6 @@ namespace Hook {
 		static ATOM __stdcall RegisterClassExHook(const WNDCLASSEXA*);
 		static BOOL __stdcall ClipCursorHook(RECT*);
 
-		static void EnableCursor(bool enable) noexcept;
-
 		struct OldFuncs {
 
 			CreateDeviceAndSwapChain d3dCreateDevice;
